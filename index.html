@@ -1,103 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>glich script — Script Shop</title>
-  <meta name="description" content="glich script — simple shop for buying scripts. Privacy-first, no tracking." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAB Script Shop</title>
+
   <style>
-    :root{
-      --bg:#ffffff; --card:#fbfbfb; --muted:#666; --accent:#0b5cff;
-      --radius:12px; --max-width:960px; --pad:20px;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
     }
-    *{box-sizing:border-box}
-    body{
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      margin:0; background:var(--bg); color:#111; -webkit-font-smoothing:antialiased;
+
+    h1 {
+      color: #222;
     }
-    .wrap{max-width:var(--max-width); margin:36px auto; padding:0 16px;}
-    header{display:flex; align-items:center; justify-content:space-between; gap:12px}
-    .brand{display:flex; align-items:center; gap:12px}
-    .logo{
-      width:56px; height:56px; border-radius:10px;
-      display:grid; place-items:center; background:linear-gradient(135deg,#eef5ff,#eaf7ff);
-      font-weight:700; font-size:18px; color:var(--accent);
-      box-shadow:0 6px 20px rgba(11,92,255,0.08);
+
+    .product {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
     }
-    h1{margin:0; font-size:20px; letter-spacing:0.2px}
-    p.lead{margin:8px 0 0; color:var(--muted)}
-    .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:24px}
-    .card{background:var(--card); border-radius:var(--radius); padding:16px; border:1px solid #f0f0f0}
-    .card h3{margin:0 0 8px; font-size:16px}
-    .meta{font-size:13px; color:var(--muted); margin-bottom:12px}
-    .price{font-weight:700; margin-bottom:12px}
-    .btn{
-      display:inline-block; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600;
-      background:var(--accent); color:#fff;
-      box-shadow:0 6px 18px rgba(11,92,255,0.12);
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #0070ba;
+      color: white;
     }
-    .ghost{background:transparent; color:var(--accent); border:1px solid #e6f0ff; padding:8px 12px}
-    footer{margin-top:28px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; gap:12px; align-items:center}
-    .notice{background:#fff8e8; padding:12px; border-radius:10px; border:1px solid #f3e3c8; margin-top:18px; color:#6a4b00}
-    @media (max-width:520px){ .brand{gap:10px} .logo{width:48px;height:48px} h1{font-size:18px} }
+
+    button:hover {
+      background: #004f87;
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">gS</div>
-        <div>
-          <h1>glich script</h1>
-          <p class="lead">Simple, privacy-first script shop — buy downloads via Gumroad.</p>
-        </div>
-      </div>
-      <nav>
-        <a href="#products" class="ghost">Products</a>
-      </nav>
-    </header>
+  <h1>SAB Script Shop</h1>
+  <p>Buy premium Roblox scripts safely through PayPal.</p>
 
-    <main>
-      <section id="products" aria-labelledby="products-heading">
-        <h2 id="products-heading" style="margin-top:28px; font-size:18px">Available Scripts</h2>
-
-        <div class="grid">
-          <!-- Product 1 -->
-          <article class="card" aria-label="SAB Script 2025">
-            <h3>SAB Script 2025</h3>
-            <div class="meta">Feature-rich script for SAB (demo description).</div>
-            <div class="price">$9.99</div>
-            <a class="btn" href="https://gumroad.com/l/sab-script-2025" target="_blank" rel="noopener noreferrer">Buy on Gumroad</a>
-          </article>
-
-          <!-- Product 2 -->
-          <article class="card" aria-label="Auto Farm Pro">
-            <h3>Auto Farm Pro</h3>
-            <div class="meta">Automates repetitive in-game tasks (for testing & learning).</div>
-            <div class="price">$7.99</div>
-            <a class="btn" href="https://gumroad.com/l/auto-farm-pro" target="_blank" rel="noopener noreferrer">Buy on Gumroad</a>
-          </article>
-        </div>
-
-        <div class="notice" role="note">
-          <strong>Responsible use:</strong> These products are sold as downloadable code. Buyers must follow platform Terms of Service and local laws. Use responsibly.
-        </div>
-      </section>
-
-      <section style="margin-top:26px;">
-        <h3 style="margin:0 0 8px">How to update links</h3>
-        <ol style="margin-top:6px; color:var(--muted)">
-          <li>Go to your Gumroad product page and copy the product URL (it usually looks like <code>https://gumroad.com/l/your-product-id</code>).</li>
-          <li>Replace the placeholder URLs in the <code>href</code> attributes above with your real links.</li>
-          <li>Upload this file to your host — no server required.</li>
-        </ol>
-      </section>
-    </main>
-
-    <footer>
-      <div>© <strong>glich script</strong></div>
-      <div style="text-align:right">Made with privacy in mind — no tracking, no IP logging.</div>
-    </footer>
+  <!-- PRODUCT 1 -->
+  <div class="product">
+    <h2>SAB Script V1</h2>
+    <p>$5.00</p>
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_xclick">
+      <input type="hidden" name="business" value="your-paypal-email@example.com">
+      <input type="hidden" name="item_name" value="SAB Script V1">
+      <input type="hidden" name="amount" value="5.00">
+      <input type="hidden" name="currency_code" value="USD">
+      <button type="submit">Buy Now</button>
+    </form>
   </div>
-</body>
-</html>
+
+  <!-- PRODUCT 2 -->
+  <div class="product">
+    <h2>SAB Script V2 (NEW)</h2>
+    <p>$10.00</p>
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_xclick">
+      <input type="hidden" name="business" value="your-paypal-email@example.com">
+      <input type="hidden" name="item_name" value="SAB Script V2">
+      <input type="hidden" name="amount" value="10.00">
+      <input type="hidden" name="currency_code" value="USD">
+      <button type="submit">Buy Now</button>
+    </form>
+  </div>
+
+  <!-- PRODUCT 3 -->
+  <div class="product">
+    <h2>
