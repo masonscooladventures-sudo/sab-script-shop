@@ -1,81 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SAB Script Shop</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Me</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0a0a0a;
+    font-family: Arial, sans-serif;
+  }
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
+  /* Floating/rotating circles */
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0, 214, 75, 0.25);
+    opacity: 0.7;
+    animation: floatRotate infinite;
+  }
 
-    h1 {
-      color: #222;
-    }
+  .circle:nth-child(1) { width: 200px; height: 200px; top: 10%; left: 10%; animation: floatRotate 20s ease-in-out infinite; }
+  .circle:nth-child(2) { width: 150px; height: 150px; top: 70%; left: 20%; animation: floatRotate 25s ease-in-out infinite; }
+  .circle:nth-child(3) { width: 250px; height: 250px; top: 30%; left: 70%; animation: floatRotate 22s ease-in-out infinite; }
+  .circle:nth-child(4) { width: 120px; height: 120px; top: 80%; left: 60%; animation: floatRotate 18s ease-in-out infinite; }
 
-    .product {
-      background: white;
-      padding: 20px;
-      margin: 20px auto;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ccc;
-    }
+  @keyframes floatRotate {
+    0%   { transform: translate(0,0) rotate(0deg); }
+    25%  { transform: translate(30px,-40px) rotate(90deg); }
+    50%  { transform: translate(-30px,40px) rotate(180deg); }
+    75%  { transform: translate(40px,-20px) rotate(270deg); }
+    100% { transform: translate(0,0) rotate(360deg); }
+  }
 
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #0070ba;
-      color: white;
-    }
+  /* Center content */
+  .container {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0,214,75,0.3);
+    width: 320px;
+  }
 
-    button:hover {
-      background: #004f87;
-    }
-  </style>
+  h1 {
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00d64b;
+  }
+
+  .item {
+    margin: 15px 0;
+    color: #fff;
+    font-size: 18px;
+  }
+
+  .button {
+    display: block;
+    margin: 10px auto;
+    padding: 12px 20px;
+    background: #00d64b;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #00d64b;
+    transition: 0.3s;
+    width: 80%;
+  }
+
+  .button:hover {
+    background: #00ffa3;
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00ffa3;
+  }
+</style>
 </head>
-
 <body>
-  <h1>SAB Script Shop</h1>
-  <p>Buy premium Roblox scripts safely through PayPal.</p>
 
-  <!-- PRODUCT 1 -->
-  <div class="product">
-    <h2>SAB Script V1</h2>
-    <p>$5.00</p>
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-      <input type="hidden" name="cmd" value="_xclick">
-      <input type="hidden" name="business" value="your-paypal-email@example.com">
-      <input type="hidden" name="item_name" value="SAB Script V1">
-      <input type="hidden" name="amount" value="5.00">
-      <input type="hidden" name="currency_code" value="USD">
-      <button type="submit">Buy Now</button>
-    </form>
-  </div>
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
 
-  <!-- PRODUCT 2 -->
-  <div class="product">
-    <h2>SAB Script V2 (NEW)</h2>
-    <p>$10.00</p>
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-      <input type="hidden" name="cmd" value="_xclick">
-      <input type="hidden" name="business" value="your-paypal-email@example.com">
-      <input type="hidden" name="item_name" value="SAB Script V2">
-      <input type="hidden" name="amount" value="10.00">
-      <input type="hidden" name="currency_code" value="USD">
-      <button type="submit">Buy Now</button>
-    </form>
-  </div>
+<div class="container">
+  <h1>Products</h1>
 
-  <!-- PRODUCT 3 -->
-  <div class="product">
-    <h2>
+  <div class="item">285 Los Combo — <strong>$10</strong></div>
+  <a class="button" href="https://cash.app/$CashTom32?amount=10&note=285%20Los%20Combo">Buy $10</a>
+
+  <div class="item">120M Esock — <strong>$5</strong></div>
+  <a class="button" href="https://cash.app/$CashTom32?amount=5&note=120M%20Esock">Buy $5</a>
+</div>
+
+</body>
+</html>
