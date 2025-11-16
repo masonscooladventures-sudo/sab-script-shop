@@ -1,331 +1,185 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Keys Shop — Pay with Robux</title>
-  <style>
-    /* Simple reset */
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    body{background:#0f1724;color:#e6eef8;display:flex;align-items:center;justify-content:center;padding:32px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key Shop</title>
 
-    /* Animated floating circles background */
-    .bg-canvas{position:fixed;inset:0;z-index:-1;overflow:hidden}
-    .circle{position:absolute;border-radius:50%;opacity:0.12;filter:blur(26px);animation:float 20s linear infinite}
-    .c1{width:420px;height:420px;background:linear-gradient(135deg,#7c3aed,#06b6d4);left:-120px;top:-80px}
-    .c2{width:340px;height:340px;background:linear-gradient(135deg,#ef4444,#f97316);right:-160px;top:40px;animation-duration:26s}
-    .c3{width:260px;height:260px;background:linear-gradient(135deg,#10b981,#60a5fa);left:20%;bottom:-120px;animation-duration:30s}
-    @keyframes float{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-40px) rotate(90deg)}100%{transform:translateY(0) rotate(180deg)}}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: white;
+    margin: 0;
+    padding: 0;
+  }
 
-    /* Page container */
-    .container{max-width:1100px;width:100%;display:grid;grid-template-columns:1fr 420px;gap:28px}
-    header{padding:28px 32px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));backdrop-filter:blur(6px);box-shadow:0 6px 24px rgba(2,6,23,0.6)}
-    header h1{font-size:24px;margin-bottom:6px}
-    header p{font-size:13px;opacity:0.85}
+  header {
+    background: #1e1e1e;
+    padding: 20px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+  }
 
-    /* Product list */
-    .products{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-    .card h3{font-size:18px;margin-bottom:8px}
-    .price{font-weight:700;font-size:20px}
-    .buy{margin-top:12px;display:inline-block;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,#7c3aed,#06b6d4);color:white;text-decoration:none;cursor:pointer}
+  .container {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
 
-    /* Sidebar */
-    aside{padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));height:fit-content;border:1px solid rgba(255,255,255,0.03)}
-    label{font-size:13px;display:block;margin-bottom:8px;color:#bcd3ee}
-    input[type="text"],input[type="number"],select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
-    .small{font-size:12px;opacity:0.9;margin-top:8px}
+  .card {
+    background: #1d1d1d;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+  }
 
-    /* Modal */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center;z-index:50}
-    .modal{width:520px;padding:18px;border-radius:12px;background:#081024;border:1px solid rgba(255,255,255,0.04)}
-    .modal h2{margin-bottom:6px}
-    .row{display:flex;gap:10px}
-    .muted{opacity:0.8;font-size:13px}
-    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:#0ea5a6;color:#052023;text-decoration:none;cursor:pointer}
+  .price {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
 
-    footer{margin-top:18px;font-size:12px;color:#a6bedc}
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 17px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
 
-    @media(max-width:980px){.container{grid-template-columns:1fr;}.products{grid-template-columns:1fr}}
-  </style>
+  .cash { background: #00c655; color: white; }
+  .robux { background: #00aa9a; color: white; }
+
+  /* POPUPS */
+  .popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #181818;
+    padding: 20px;
+    width: 90%;
+    max-width: 350px;
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    z-index: 999;
+  }
+
+  .close-btn {
+    background: #ff4c4c;
+    margin-top: 12px;
+  }
+
+  @media screen and (max-width:600px){
+    header{font-size: 22px;}
+  }
+</style>
+
 </head>
 <body>
-  <div class="bg-canvas" aria-hidden>
-    <div class="circle c1"></div>
-    <div class="circle c2"></div>
-    <div class="circle c3"></div>
+
+<header>Key Shop</header>
+
+<div class="container">
+
+  <!-- Lifetime Key -->
+  <div class="card">
+    <h2>Lifetime Key</h2>
+    <p class="price">$20</p>
+    <button class="cash" onclick="payCash('Lifetime Key - $20')">Pay With Cash App</button>
+    <button class="robux" onclick="openRobux()">Pay With Robux</button>
   </div>
 
-  <div class="container">
-    <main>
-      <header>
-        <h1>Keys Shop — Pay with Robux</h1>
-        <p>Choose a key period below. You can pay with Robux or Cash App (<strong><a id="cashAppLink" href="#" style="color:#98f5a4;text-decoration:underline">$CashTom32</a></strong>). Prices are shown in USD — accept Robux payments by following the instructions during checkout.</p>
-
-        <div class="products">
-          <div class="card">
-            <h3>Lifetime Key</h3>
-            <div class="price">$20.00</div>
-            <div class="small">One-time payment, access forever.</div>
-            <button class="buy" data-plan="lifetime" data-price="20">Buy with Robux</button>
-            <button class="cash-btn" data-cash="20">Pay with Cash App</button>
-          </div>
-
-          <div class="card">
-            <h3>1 Month Key</h3>
-            <div class="price">$10.00</div>
-            <div class="small">Access for 30 days from activation.</div>
-            <button class="buy" data-plan="1month" data-price="10">Buy with Robux</button>
-            <button class="cash-btn" data-cash="10">Pay with Cash App</button>
-          </div>
-
-          <div class="card">
-            <h3>1 Day Key</h3>
-            <div class="price">$3.00</div>
-            <div class="small">Short-term 24-hour access.</div>
-            <button class="buy" data-plan="1day" data-price="3">Buy with Robux</button>
-            <button class="cash-btn" data-cash="3">Pay with Cash App</button>
-          </div>
-
-          <div class="card">
-            <h3>Custom / Donate</h3>
-            <div class="price">—</div>
-            <div class="small">Enter a custom amount in the sidebar and click "Buy".</div>
-            <button class="buy" data-plan="custom" data-price="0">Buy with Robux</button>
-            <button class="cash-btn" data-cash="0">Pay with Cash App</button>
-          </div>
-        </div>
-
-        <footer>
-          <div style="margin-top:12px;font-size:14px;color:#c7dcff"><strong>Cash App also accepted:</strong> <span style="color:#98f5a4">$CashTom32</span></div>
-
-
-          Tip — because Robux is a platform currency, you (the seller) must provide a Roblox username / group or a dev product link where buyers can pay. Use the sidebar to configure your Roblox receiving username and webhook to notify you of purchases.
-        </footer>
-      </header>
-    </main>
-
-    <aside>
-      <label>Seller Roblox username</label>
-      <input id="robloxUser" type="text" placeholder="Replace with your Roblox name (e.g. MyRobloxUser)" />
-
-      <label style="margin-top:12px">Estimated conversion (Robux per USD)</label>
-      <input id="robuxRate" type="number" min="1" value="100" />
-      <div class="small">Set an approximate number of Robux that equals $1. Example: if 1 USD ≈ 100 Robux, enter <strong>100</strong>.</div>
-
-      <label style="margin-top:12px">Discord webhook (optional)</label>
-      <input id="webhookUrl" type="text" placeholder="https://discord.com/api/webhooks/..." />
-      <div class="small">If set, the shop will POST a notification to the webhook when someone submits a payment verification.</div>
-
-      <label style="margin-top:12px">Admin secret (optional)</label>
-      <input id="adminSecret" type="text" placeholder="local secret to avoid spam" />
-
-      <label style="margin-top:12px">Your note to buyers</label>
-      <textarea id="sellerNote" rows="3" placeholder="Where should buyers send Robux? Example: Trade to MyGroup or use dev product."></textarea>
-
-      <div style="margin-top:12px"> 
-        <button id="previewBtn" class="btn">Preview sample order</button>
-      </div>
-
-      <div style="margin-top:12px;font-size:13px;color:#a9c2e6">This is a static frontend. To fully automate verification you need a server that checks Roblox transactions or uses a Roblox developer product + buys API. The simplest manual flow: buyer pays on Roblox, copy transaction/trade ID, paste below, and you verify manually.</div>
-    </aside>
+  <!-- 1 Month Key -->
+  <div class="card">
+    <h2>1 Month Key</h2>
+    <p class="price">$10</p>
+    <button class="cash" onclick="payCash('1 Month Key - $10')">Pay With Cash App</button>
+    <button class="robux" onclick="openRobux()">Pay With Robux</button>
   </div>
 
-  <!-- Modal (hidden by default) -->
-  <div id="modalRoot" style="display:none"></div>
+  <!-- 1 Day Key -->
+  <div class="card">
+    <h2>1 Day Key</h2>
+    <p class="price">$3</p>
+    <button class="cash" onclick="payCash('1 Day Key - $3')">Pay With Cash App</button>
+    <button class="robux" onclick="openRobux()">Pay With Robux</button>
+  </div>
 
-  <script>
-    // Minimal frontend logic for the Robux-pay flow.
-    const modalRoot = document.getElementById('modalRoot');
-    const robloxUserInput = document.getElementById('robloxUser');
-    const robuxRateInput = document.getElementById('robuxRate');
-    const webhookInput = document.getElementById('webhookUrl');
-    const adminSecretInput = document.getElementById('adminSecret');
-    const sellerNoteInput = document.getElementById('sellerNote');
+</div>
 
-    function openModal(plan, priceUSD){
-      const rate = Number(robuxRateInput.value) || 100;
-      const robuxAmount = Math.ceil(priceUSD * rate);
-      const sellerNote = sellerNoteInput.value || ('Send Robux to: ' + (robloxUserInput.value || 'REPLACE_ROBLOX_USER'));
+<!-- ROBUX POPUP -->
+<div id="robuxPopup" class="popup">
+  <h2>Pay With Robux</h2>
+  <p>Send a trade to:</p>
 
-      modalRoot.innerHTML = `
-        <div class="modal-backdrop">
-          <div class="modal" role="dialog" aria-modal="true">
-            <h2>Checkout — ${plan}</h2>
-            <div class="muted">Price: $${priceUSD.toFixed(2)} — estimated <strong>${robuxAmount} Robux</strong></div>
-            <p class="small">${sellerNote}</p>
+  <p style="font-size:20px; font-weight:bold; color:#00ffaa;">
+    cooladventures2015
+  </p>
 
-            <label style="margin-top:12px">Your Roblox username</label>
-            <input id="buyerName" type="text" placeholder="YourRobloxName" />
+  <button style="background:#ffaa00;" onclick="copyUser()">Copy Username</button>
 
-            <label style="margin-top:8px">Roblox payment reference / trade ID</label>
-            <input id="paymentRef" type="text" placeholder="paste trade/transaction id here" />
+  <button onclick="openTradeHelp()" style="background:#4c8dff;">Trade ID Help</button>
 
-            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-              <button id="cancelBtn" class="btn" style="background:#334155;color:#e6eef8">Cancel</button>
-              <button id="submitBtn" class="btn">I paid — submit verification</button>
-            </div>
+  <button class="close-btn" onclick="closePopups()">Close</button>
+</div>
 
-            <div style="margin-top:10px" class="muted">After submit, the shop will send you a confirmation message (if a webhook is configured) and the admin must verify the trade on Roblox. Until admin verifies, access is NOT granted.</div>
-          </div>
-        </div>
-      `;
+<!-- TRADE HELP POPUP -->
+<div id="tradeHelpPopup" class="popup">
+  <h2>How to Find Your Trade ID</h2>
 
-      modalRoot.style.display = 'block';
+  <ol style="text-align:left;">
+    <li>Go to Roblox.com</li>
+    <li>Click your avatar → <b>Trades</b></li>
+    <li>Open the trade you sent</li>
+    <li>Copy the <b>Trade ID</b></li>
+    <li>Send it to me after paying</li>
+  </ol>
 
-      document.getElementById('cancelBtn').onclick = () => { modalRoot.style.display='none'; modalRoot.innerHTML=''; };
-      document.getElementById('submitBtn').onclick = async () => {
-        const buyer = document.getElementById('buyerName').value.trim();
-        const ref = document.getElementById('paymentRef').value.trim();
-        if(!buyer || !ref){
-          alert('Enter your Roblox username and the payment/trade ID.');
-          return;
-        }
-        const payload = {
-          plan, priceUSD, robuxAmount, buyer, ref, seller: robloxUserInput.value || 'REPLACE_ROBLOX_USER', time: new Date().toISOString()
-        };
+  <button class="close-btn" onclick="closePopups()">Close</button>
+</div>
 
-        // Optionally send to Discord webhook if provided (user must set webhook URL in sidebar)
-        const webhook = webhookInput.value.trim();
-        if(webhook){
-          try{
-            await fetch(webhook,{
-              method:'POST',headers:{'Content-Type':'application/json'},
-              body: JSON.stringify({content: 'New payment verification', embeds:[{title:'New Payment',description:JSON.stringify(payload,null,2)}]})
-            });
-          }catch(e){console.warn('Webhook failed',e)}
-        }
+<!-- THANK YOU POPUP -->
+<div id="thankYouPopup" class="popup">
+  <h2>Thank You!</h2>
+  <p>We will be with you shortly.</p>
+  <button class="close-btn" onclick="closePopups()">Close</button>
+</div>
 
-        // Save to localStorage so admin can inspect on this device (convenience)
-        const pending = JSON.parse(localStorage.getItem('shop_pending')||'[]');
-        pending.push(payload);
-        localStorage.setItem('shop_pending', JSON.stringify(pending));
 
-        alert('Verification submitted. Admin will verify the trade and grant access.');
-        modalRoot.style.display='none'; modalRoot.innerHTML='';
-      };
-    }
+<script>
+function payCash(item){
+  window.location.href = "https://cash.app/$CashTom32";
+  setTimeout(() => {
+    document.getElementById("thankYouPopup").style.display = "block";
+  }, 1500);
+}
 
-    // Wire buy buttons
-    document.querySelectorAll('.buy').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const plan = btn.dataset.plan;
-        const price = Number(btn.dataset.price) || 0;
-        if(plan==='custom'){
-          const custom = parseFloat(prompt('Enter custom USD price'));
-          if(!custom || custom<=0) return; openModal('custom',custom);
-        }else openModal(plan,price);
-      });
-    });
+function openRobux(){
+  document.getElementById("robuxPopup").style.display = "block";
+}
 
-    // Preview button: creates a sample pending order so admin can see format
-    document.getElementById('previewBtn').addEventListener('click',()=>{
-      const sample = {plan:'lifetime',priceUSD:20,robuxAmount:20*(Number(robuxRateInput.value)||100),buyer:'ExampleBuyer',ref:'SAMPLE123',seller:robloxUserInput.value||'REPLACE_ROBLOX_USER',time:new Date().toISOString()};
-      const pending = JSON.parse(localStorage.getItem('shop_pending')||'[]'); pending.push(sample); localStorage.setItem('shop_pending', JSON.stringify(pending));
-      alert('Sample order saved to local storage. Open dev console or check the pending orders to see it.');
-    });
+function openTradeHelp(){
+  document.getElementById("robuxPopup").style.display = "none";
+  document.getElementById("tradeHelpPopup").style.display = "block";
+}
 
-    // Small admin helper: open pending orders in a new window (for admin use)
-    window.openPendingOrders = function(){
-      const pending = JSON.parse(localStorage.getItem('shop_pending')||'[]');
-      const w = window.open('about:blank','_blank');
-      w.document.body.style.background='#071025'; w.document.body.style.color='#e8f3ff';
-      w.document.body.innerHTML = '<h2 style="font-family:Inter;padding:18px">Pending Orders</h2><pre style="padding:18px;white-space:pre-wrap">'+JSON.stringify(pending,null,2)+'</pre>';
-    }
+function copyUser(){
+  navigator.clipboard.writeText("cooladventures2015");
+  alert("Copied Roblox Username: cooladventures2015");
+}
 
-    // Expose for quick admin verification on the same device: window.openPendingOrders()
-  </script>
-  <script>
-    // Cash App confirmation flow
-    const cashTag = "CashTom32";
-    const cashAppLink = document.getElementById('cashAppLink');
+function closePopups(){
+  document.getElementById("robuxPopup").style.display = "none";
+  document.getElementById("tradeHelpPopup").style.display = "none";
+  document.getElementById("thankYouPopup").style.display = "none";
+}
+</script>
 
-    cashAppLink.addEventListener('click', (e) => {
-      e.preventDefault();
-
-      // Create confirmation modal
-      modalRoot.innerHTML = `
-        <div class="modal-backdrop">
-          <div class="modal" role="dialog" aria-modal="true">
-            <h2>Cash App Payment</h2>
-            <p>You're about to pay <strong>$CashTom32</strong> via Cash App.</p>
-
-            <label style="margin-top:12px">Enter amount (USD)</label>
-            <input id="cashAmount" type="number" min="1" placeholder="Example: 20" />
-
-            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-              <button id="cashCancel" class="btn" style="background:#334155;color:#e6eef8">Cancel</button>
-              <button id="cashConfirm" class="btn">Confirm & Pay</button>
-            </div>
-          </div>
-        </div>
-      `;
-
-      modalRoot.style.display = 'block';
-
-      document.getElementById('cashCancel').onclick = () => {
-        modalRoot.style.display = 'none';
-        modalRoot.innerHTML = '';
-      };
-
-      document.getElementById('cashConfirm').onclick = () => {
-        const amount = document.getElementById('cashAmount').value;
-        if (!amount || amount <= 0) {
-          alert('Enter a valid amount.');
-          return;
-        }
-
-        // Redirect to Cash App payment link
-        const url = `https://cash.app/${cashTag}?amount=${amount}`;
-        window.location.href = url;
-
-        modalRoot.style.display = 'none';
-        modalRoot.innerHTML = '';
-      };
-    });
-  </script>
-  <script>
-    // Handle product Cash App buttons
-    document.querySelectorAll('.cash-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const amount = btn.dataset.cash;
-
-        modalRoot.innerHTML = `
-          <div class="modal-backdrop">
-            <div class="modal" role="dialog" aria-modal="true">
-              <h2>Cash App Payment</h2>
-              <p>You're about to pay <strong>$CashTom32</strong> via Cash App.</p>
-
-              <label style="margin-top:12px">Amount (USD)</label>
-              <input id="cashAmountBtn" type="number" value="${amount}" />
-
-              <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-                <button id="cashCancelBtn" class="btn" style="background:#334155;color:#e6eef8">Cancel</button>
-                <button id="cashConfirmBtn" class="btn">Confirm & Pay</button>
-              </div>
-            </div>
-          </div>`;
-
-        modalRoot.style.display = 'block';
-
-        document.getElementById('cashCancelBtn').onclick = () => {
-          modalRoot.style.display = 'none';
-          modalRoot.innerHTML = '';
-        };
-
-        document.getElementById('cashConfirmBtn').onclick = () => {
-          const amt = document.getElementById('cashAmountBtn').value;
-          if (!amt || amt <= 0) {
-            alert('Enter a valid amount.');
-            return;
-          }
-
-          alert('Thank you for buying! We will be with you shortly.');
-          window.location.href = `https://cash.app/CashTom32?amount=${amt}`;
-        };
-      });
-    });
-  </script>
 </body>
 </html>
