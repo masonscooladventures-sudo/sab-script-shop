@@ -122,6 +122,11 @@
       <button style="float:right;background:transparent;border:0;color:#9fb2cf;font-weight:700;" onclick="closeModal()">✕</button>
       <h2 id="modalTitle">Checkout</h2>
       <div class="field">
+        <label class="small">Enter your email (required to receive your key):</label>
+        <input id="buyerEmail" type="email" placeholder="you@example.com" required style="width:100%;padding:8px;margin-top:6px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:#e6eef8;margin-bottom:12px;">
+
+        <!-- existing content below -->
+        
         <div class="small">Pay with Cash App</div>
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
           <div style="flex:1">
@@ -204,6 +209,13 @@
     }
 
     function confirmAndDownload(isRobux){
+      const email = document.getElementById('buyerEmail').value.trim();
+      if(!email){
+        alert('Please enter your email before receiving your key.');
+        return;
+      }
+      // original code below
+      (isRobux){
       // Note: This demo cannot verify payments. The seller should confirm receipt before issuing keys in real usage.
       const robuxVal = document.getElementById('robuxAmount').value;
       const info = isRobux ? `Robux amount: ${robuxVal||'(not specified)'}` : `Cash App: $${selectedProduct.usd} to $${SELLER_CASH_TAG}`;
@@ -211,7 +223,12 @@
       document.getElementById('generatedKey').innerText = key;
 
       // create and download a simple text file containing the key
-      const blob = new Blob([`Product: ${selectedProduct.name}\nPrice: $${selectedProduct.usd}\nPayment: ${info}\nKey: ${key}\n`], {type: 'text/plain'});
+      const blob = new Blob([`Buyer Email: ${email}
+Product: ${selectedProduct.name}
+Price: $${selectedProduct.usd}
+Payment: ${info}
+Key: ${key}
+`], {Product: ${selectedProduct.name}\nPrice: $${selectedProduct.usd}\nPayment: ${info}\nKey: ${key}\n`], {type: 'text/plain'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -221,7 +238,16 @@
       a.remove();
       URL.revokeObjectURL(url);
 
-      alert('Key generated and downloaded. Seller should verify payment off-site.');
+      // send webhook to Discord
+      fetch("https://discord.com/api/webhooks/1439475249904357436/0Q7B1pKZKs07RTbd8HzS_DVRjpSdeZkm77-VbA-uoMYGQXfJiAcSiMGkbHWMS-9Q8qDu", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `📩 **New Script Key Purchase**\n**Email:** ${email}\n**Product:** ${selectedProduct.name}\n**Price:** $${selectedProduct.usd}\n**Payment:** ${info}\n**Key:** ${key}\n⏰ ${new Date().toLocaleString()}`
+        })
+      }).catch(err => console.error('Webhook error:', err));
+
+      alert('Key generated and downloaded. Seller should verify payment off-site.');. Seller should verify payment off-site.');
       closeModal();
     }
 
@@ -243,7 +269,3 @@
   </script>
 </body>
 </html>
-<div id="modal" ...>
-   ...
-   <button>I sent payment — Get key</button>
-</div>
