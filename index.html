@@ -1,5 +1,249 @@
-<div id="checkoutModal">
-  <h2>Checkout</h2>
-  ...
-  <button id="confirmBtn">Get Key</button>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CashTom32 — Script Keys Shop</title>
+  <style>
+    :root{--bg:#0b1020;--card:#0f1724;--accent:#7dd3fc;--glass:rgba(255,255,255,0.04)}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#e6eef8;background:linear-gradient(180deg,#031026 0%, #071228 60%);overflow-x:hidden}
+    /* animated floating circles */
+    .bg-circles{position:fixed;inset:0;z-index:0;pointer-events:none}
+    .circle{position:absolute;border-radius:50%;filter:blur(40px);opacity:0.28;mix-blend-mode:screen;animation:float 20s ease-in-out infinite}
+    .circle.c1{width:380px;height:380px;left:-80px;top:-100px;background:radial-gradient(circle at 30% 30%, #6ee7b7, transparent 40%);animation-duration:28s}
+    .circle.c2{width:300px;height:300px;right:-60px;top:20%;background:radial-gradient(circle at 20% 20%, #bfdbfe, transparent 40%);animation-duration:22s}
+    .circle.c3{width:220px;height:220px;left:40%;bottom:-80px;background:radial-gradient(circle at 40% 40%, #fbcfe8, transparent 40%);animation-duration:26s}
+    @keyframes float{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-30px) rotate(30deg)}100%{transform:translateY(0) rotate(0deg)}}
+
+    /* layout */
+    .wrap{position:relative;z-index:1;max-width:1100px;margin:48px auto;padding:32px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .logo{display:flex;gap:12px;align-items:center}
+    .logo .mark{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;box-shadow:0 6px 24px rgba(0,0,0,0.5)}
+    h1{margin:0;font-size:22px}
+    p.lead{color:#bcd6ef;margin:6px 0 0}
+
+    /* product grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:14px;backdrop-filter: blur(6px);box-shadow:0 6px 18px rgba(3,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .card h3{margin:0 0 8px}
+    .card .price{font-size:18px;font-weight:700;color:var(--accent)}
+    .small{font-size:12px;color:#9fb2cf}
+
+    /* buttons */
+    .btn{display:inline-flex;gap:10px;align-items:center;padding:12px 16px;border-radius:12px;border:0;cursor:pointer;font-weight:700;background:linear-gradient(90deg,#0ea5a9 0%,#7c3aed 100%);color:white;box-shadow:0 10px 25px rgba(124,58,237,0.25);transform:translateY(0);transition:transform .18s ease,box-shadow .18s}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(124,58,237,0.35)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.1);color:#dbeafe;font-weight:600}
+    .btn.ghost{background:transparent;color:#a5b4fc}
+
+    /* pulse animation on buy */ on buy */
+    .btn.buy{position:relative;overflow:hidden}
+    .btn.buy::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 10% 10%, rgba(255,255,255,0.08), transparent 20%);opacity:0;transition:opacity .25s}
+    .btn.buy:hover::after{opacity:1}
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:linear-gradient(0deg,rgba(2,6,23,0.7),rgba(2,6,23,0.7));display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{width:92%;max-width:520px;background:linear-gradient(180deg,#081029,#0c1630);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
+    .modal h2{margin-top:0}
+    .field{margin:8px 0}
+    .copy{display:inline-flex;gap:8px;align-items:center}
+    .key-output{background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;font-family:monospace}
+
+    footer{margin-top:36px;color:#9fb2cf;font-size:13px;text-align:center}
+
+    /* responsive tweaks */
+    @media (max-width:520px){header{flex-direction:column;align-items:flex-start;gap:10px}.logo .mark{width:48px;height:48px}}
+  </style>
+</head>
+<body>
+  <div class="bg-circles" aria-hidden>
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+  </div>
+
+  <main class="wrap">
+    <header>
+      <div class="logo">
+        <div class="mark">CT</div>
+        <div>
+          <h1>CashTom32 — Script Keys Shop</h1>
+          <p class="lead">Buy script access keys — pay with Cash App (<strong>$CashTom32</strong>) or Robux. All purchases deliver a downloadable key instantly.</p>
+        </div>
+      </div>
+      <div>
+        <button class="btn ghost" onclick="openAbout()">About</button>
+      </div>
+    </header>
+
+    <section>
+      <div class="grid">
+        <article class="card">
+          <h3>Lifetime Script <span class="small">(script key)</span></h3>
+          <div class="price">$20</div>
+          <p class="small">One-time key that unlocks the script forever. These are all script keys.</p>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn buy" onclick="buy('Lifetime Script',20)">Buy with Cash App</button>
+            <button class="btn secondary" onclick="buyRobux('Lifetime Script',20)">Buy with Robux</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>1 Month Script <span class="small">(script key)</span></h3>
+          <div class="price">$15</div>
+          <p class="small">Access for 30 days. These are all script keys.</p>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn buy" onclick="buy('1 Month Script',15)">Buy with Cash App</button>
+            <button class="btn secondary" onclick="buyRobux('1 Month Script',15)">Buy with Robux</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>1 Day Script Key <span class="small">(script key)</span></h3>
+          <div class="price">$3</div>
+          <p class="small">24-hour access key. These are all script keys.</p>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn buy" onclick="buy('1 Day Script Key',3)">Buy with Cash App</button>
+            <button class="btn secondary" onclick="buyRobux('1 Day Script Key',3)">Buy with Robux</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <div>Tip: Cash App tag is shown during checkout. For Robux, follow the Robux sending instructions shown in the modal.</div>
+    </footer>
+  </main>
+
+  <!-- modal -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal" id="modalCard">
+      <button style="float:right;background:transparent;border:0;color:#9fb2cf;font-weight:700;" onclick="closeModal()">✕</button>
+      <h2 id="modalTitle">Checkout</h2>
+      <div class="field">
+        <div class="small">Pay with Cash App</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <div style="flex:1">
+            <div class="key-output" id="cashOutput">Send <strong>$0</strong> to <strong>$CashTom32</strong></div>
+            <div class="small" style="margin-top:8px">Tap copy to copy text, then open Cash App on your phone and paste into the pay field.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn ghost" onclick="copyCash()">Copy</button>
+            <button class="btn" onclick="confirmAndDownload()">I sent payment — Get key</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.04)" />
+
+      <div class="field">
+        <div class="small">Pay with Robux</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <div style="flex:1">
+            <label class="small">Enter how many Robux you'll send (seller will confirm):</label>
+            <input id="robuxAmount" type="number" min="0" placeholder="e.g. 500" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:#e6eef8">
+            <div class="small" style="margin-top:8px">Send Robux to the seller's Roblox username and then click the button to receive your key.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn ghost" onclick="copyRobux()">Copy Instructions</button>
+            <button class="btn" onclick="confirmAndDownload(true)">I sent Robux — Get key</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="small">Security note: This demo does not verify payments — the seller must confirm receipt before issuing keys.</div>
+
+      <div style="margin-top:12px">
+        <div class="small">Generated Key:</div>
+        <div class="key-output" id="generatedKey">—</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration (edit these values directly in the HTML to change seller info)
+    const SELLER_CASH_TAG = 'CashTom32';
+    const SELLER_ROBLOX = 'CashTom32'; // change if seller's Roblox username differs
+
+    let selectedProduct = null;
+    function buy(name, usd){
+      selectedProduct = {name, usd};
+      document.getElementById('modalTitle').innerText = `Buy ${name} — $${usd}`;
+      document.getElementById('cashOutput').innerHTML = `Send <strong>$${usd}</strong> to <strong>$${SELLER_CASH_TAG}</strong>`;
+      document.getElementById('generatedKey').innerText = '—';
+      showModal();
+    }
+
+    function buyRobux(name, usd){
+      selectedProduct = {name, usd};
+      document.getElementById('modalTitle').innerText = `Buy ${name} — $${usd} (Robux)`;
+      document.getElementById('cashOutput').innerHTML = `If you prefer Robux, enter how many Robux you'll send below and press 'I sent Robux — Get key'.`;
+      document.getElementById('generatedKey').innerText = '—';
+      showModal();
+    }
+
+    function showModal(){
+      const md = document.getElementById('modal');
+      md.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(){
+      const md = document.getElementById('modal');
+      md.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function copyCash(){
+      const text = `Pay $${selectedProduct.usd} to $${SELLER_CASH_TAG} via Cash App`;
+      navigator.clipboard.writeText(text).then(()=>alert('Copy ready: ' + text)).catch(()=>alert('Could not copy — please copy manually.'));
+    }
+    function copyRobux(){
+      const text = `Sending Robux to ${SELLER_ROBLOX} for ${selectedProduct.name} ($${selectedProduct.usd}). Enter the Robux amount you agreed on.`;
+      navigator.clipboard.writeText(text).then(()=>alert('Copy ready: ' + text)).catch(()=>alert('Could not copy — please copy manually.'));
+    }
+
+    function confirmAndDownload(isRobux){
+      // Note: This demo cannot verify payments. The seller should confirm receipt before issuing keys in real usage.
+      const robuxVal = document.getElementById('robuxAmount').value;
+      const info = isRobux ? `Robux amount: ${robuxVal||'(not specified)'}` : `Cash App: $${selectedProduct.usd} to $${SELLER_CASH_TAG}`;
+      const key = generateKey(selectedProduct.name);
+      document.getElementById('generatedKey').innerText = key;
+
+      // create and download a simple text file containing the key
+      const blob = new Blob([`Product: ${selectedProduct.name}\nPrice: $${selectedProduct.usd}\nPayment: ${info}\nKey: ${key}\n`], {type: 'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedProduct.name.replace(/\s+/g,'_')}_key.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      alert('Key generated and downloaded. Seller should verify payment off-site.');
+      closeModal();
+    }
+
+    function generateKey(name){
+      // generate a short pseudo-random key (client-side demo)
+      const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      let out = name.split(' ').map(w=>w.slice(0,2)).join('').toUpperCase();
+      out += '-';
+      for(let i=0;i<12;i++){out += chars[Math.floor(Math.random()*chars.length)]; if((i+1)%4===0 && i!==11) out += '-';}
+      return out;
+    }
+
+    function openAbout(){
+      alert('This is a demo single-file shop. Edit the HTML to change seller tags, prices, or integrate a real payment/verification flow.');
+    }
+
+    // accessibility: close modal with Escape
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); } });
+  </script>
+</body>
+</html>
+<div id="modal" ...>
+   ...
+   <button>I sent payment — Get key</button>
 </div>
