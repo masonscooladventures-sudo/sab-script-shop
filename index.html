@@ -1,185 +1,237 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Key Shop</title>
+// EDU Portal — React single-file app
+// Save this file as `App.jsx` in a React project (Vite or Create React App).
+// This demo uses Firebase Authentication + Firestore to store user roles.
+// Steps to use:
+// 1) Create a Firebase project at https://console.firebase.google.com
+// 2) Enable Email/Password sign-in in Authentication -> Sign-in method
+// 3) Create a Firestore database (in test or locked rules for production)
+// 4) In Firestore create a collection `roles` where each document ID is the user's uid
+//    and contains { role: "student" | "teacher" | "admin" }
+// 5) Replace the firebaseConfig below with your project's config object
+// 6) Install dependencies: react-router-dom, firebase
+//    npm install react-router-dom firebase
+// 7) Run project (vite: npm run dev, CRA: npm start)
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #121212;
-    color: white;
-    margin: 0;
-    padding: 0;
-  }
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
-  header {
-    background: #1e1e1e;
-    padding: 20px;
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-  }
+// ----- CONFIGURE THIS -----
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+// -------------------------
 
-  .container {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-  }
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  .card {
-    background: #1d1d1d;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(255,255,255,0.1);
-  }
+// Simple styles (Tailwind recommended for production)
+const container = { maxWidth: 980, margin: '28px auto', padding: 18, fontFamily: 'Inter, system-ui, sans-serif' };
+const card = { background: 'white', padding: 16, borderRadius: 12, boxShadow: '0 6px 18px rgba(2,6,23,0.06)', marginBottom: 16 };
 
-  .price {
-    font-size: 22px;
-    margin-bottom: 15px;
-  }
+// ----- Auth Context -----
+const AuthContext = createContext(null);
+export function useAuth(){ return useContext(AuthContext); }
 
-  button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    font-size: 17px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  }
+function AuthProvider({ children }){
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  .cash { background: #00c655; color: white; }
-  .robux { background: #00aa9a; color: white; }
+  useEffect(()=>{
+    const unsub = onAuthStateChanged(auth, async (u)=>{
+      setLoading(true);
+      if(!u){ setUser(null); setRole(null); setLoading(false); return; }
+      setUser(u);
+      // fetch role from Firestore
+      try{
+        const rdoc = await getDoc(doc(db, 'roles', u.uid));
+        if(rdoc.exists()) setRole(rdoc.data().role || null);
+        else setRole(null);
+      }catch(e){ console.error('Failed to fetch role', e); setRole(null); }
+      setLoading(false);
+    });
+    return unsub;
+  },[]);
 
-  /* POPUPS */
-  .popup {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #181818;
-    padding: 20px;
-    width: 90%;
-    max-width: 350px;
-    border-radius: 14px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    z-index: 999;
-  }
+  const value = { user, role, loading, signIn: async (email,password)=>{
+    await signInWithEmailAndPassword(auth, email, password);
+  }, signUp: async (email,password, roleChoice='student')=>{
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // save role in Firestore
+    await setDoc(doc(db, 'roles', cred.user.uid), { role: roleChoice });
+  }, signOut: ()=>signOut(auth) };
 
-  .close-btn {
-    background: #ff4c4c;
-    margin-top: 12px;
-  }
-
-  @media screen and (max-width:600px){
-    header{font-size: 22px;}
-  }
-</style>
-
-</head>
-<body>
-
-<header>Key Shop</header>
-
-<div class="container">
-
-  <!-- Lifetime Key -->
-  <div class="card">
-    <h2>Lifetime Key</h2>
-    <p class="price">$20</p>
-    <button class="cash" onclick="payCash('Lifetime Key - $20')">Pay With Cash App</button>
-    <button class="robux" onclick="openRobux()">Pay With Robux</button>
-  </div>
-
-  <!-- 1 Month Key -->
-  <div class="card">
-    <h2>1 Month Key</h2>
-    <p class="price">$10</p>
-    <button class="cash" onclick="payCash('1 Month Key - $10')">Pay With Cash App</button>
-    <button class="robux" onclick="openRobux()">Pay With Robux</button>
-  </div>
-
-  <!-- 1 Day Key -->
-  <div class="card">
-    <h2>1 Day Key</h2>
-    <p class="price">$3</p>
-    <button class="cash" onclick="payCash('1 Day Key - $3')">Pay With Cash App</button>
-    <button class="robux" onclick="openRobux()">Pay With Robux</button>
-  </div>
-
-</div>
-
-<!-- ROBUX POPUP -->
-<div id="robuxPopup" class="popup">
-  <h2>Pay With Robux</h2>
-  <p>Send a trade to:</p>
-
-  <p style="font-size:20px; font-weight:bold; color:#00ffaa;">
-    cooladventures2015
-  </p>
-
-  <button style="background:#ffaa00;" onclick="copyUser()">Copy Username</button>
-
-  <button onclick="openTradeHelp()" style="background:#4c8dff;">Trade ID Help</button>
-
-  <button class="close-btn" onclick="closePopups()">Close</button>
-</div>
-
-<!-- TRADE HELP POPUP -->
-<div id="tradeHelpPopup" class="popup">
-  <h2>How to Find Your Trade ID</h2>
-
-  <ol style="text-align:left;">
-    <li>Go to Roblox.com</li>
-    <li>Click your avatar → <b>Trades</b></li>
-    <li>Open the trade you sent</li>
-    <li>Copy the <b>Trade ID</b></li>
-    <li>Send it to me after paying</li>
-  </ol>
-
-  <button class="close-btn" onclick="closePopups()">Close</button>
-</div>
-
-<!-- THANK YOU POPUP -->
-<div id="thankYouPopup" class="popup">
-  <h2>Thank You!</h2>
-  <p>We will be with you shortly.</p>
-  <button class="close-btn" onclick="closePopups()">Close</button>
-</div>
-
-
-<script>
-function payCash(item){
-  window.location.href = "https://cash.app/$CashTom32";
-  setTimeout(() => {
-    document.getElementById("thankYouPopup").style.display = "block";
-  }, 1500);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-function openRobux(){
-  document.getElementById("robuxPopup").style.display = "block";
+// ----- Protected routing components -----
+function ProtectedRoute({ children }){
+  const { user, loading } = useAuth();
+  if(loading) return <div style={{padding:20}}>Loading...</div>;
+  if(!user) return <Navigate to="/signin" replace />;
+  return children;
 }
 
-function openTradeHelp(){
-  document.getElementById("robuxPopup").style.display = "none";
-  document.getElementById("tradeHelpPopup").style.display = "block";
+function RoleRoute({ allowed = [], children }){
+  const { role, loading } = useAuth();
+  if(loading) return <div style={{padding:20}}>Loading...</div>;
+  if(!role) return <div style={{padding:20}}>No role assigned. Contact admin.</div>;
+  return allowed.includes(role) ? children : <div style={{padding:20}}>Access denied for role: {role}</div>;
 }
 
-function copyUser(){
-  navigator.clipboard.writeText("cooladventures2015");
-  alert("Copied Roblox Username: cooladventures2015");
+// ----- Pages -----
+function Home(){
+  const { user, role } = useAuth();
+  return (
+    <div style={container}>
+      <header style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <h1 style={{display:'flex',alignItems:'center',gap:8}}>
+  🐅 <span style={{color:'#1E40AF',fontWeight:700}}>EDU</span>
+</h1>
+        <nav>
+          <Link to="/">Home</Link> {' | '}
+          <Link to="/dashboard">Dashboard</Link> {' | '}
+          <Link to="/admin">Admin</Link>
+        </nav>
+      </header>
+
+      <main>
+        <div style={card}>
+          <h2>Welcome to EDU</h2>
+          <p>This portal uses Firebase Authentication and Firestore for role assignments.</p>
+          <p>Signed in: {user ? user.email : 'No' } {user && role ? `(role: ${role})` : ''}</p>
+        </div>
+      </main>
+    </div>
+  );
 }
 
-function closePopups(){
-  document.getElementById("robuxPopup").style.display = "none";
-  document.getElementById("tradeHelpPopup").style.display = "none";
-  document.getElementById("thankYouPopup").style.display = "none";
-}
-</script>
+function SignIn(){
+  const { signIn, signUp } = useAuth();
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [roleChoice, setRoleChoice] = useState('student');
+  const nav = useNavigate();
 
-</body>
-</html>
+  async function handleSignIn(e){ e.preventDefault(); try{ await signIn(email,pass); nav('/dashboard'); }catch(err){ alert('Sign in failed: '+err.message); }}
+  async function handleSignUp(e){ e.preventDefault(); try{ await signUp(email,pass,roleChoice); nav('/dashboard'); }catch(err){ alert('Sign up failed: '+err.message); }}
+
+  return (
+    <div style={container}>
+      <div style={{maxWidth:420, margin:'40px auto'}}>
+        <div style={card}>
+          <h3>Sign in / Create account</h3>
+          <form onSubmit={handleSignIn}>
+            <div style={{marginBottom:8}}><label>Email</label><input value={email} onChange={e=>setEmail(e.target.value)} style={{width:'100%',padding:8}}/></div>
+            <div style={{marginBottom:8}}><label>Password</label><input type="password" value={pass} onChange={e=>setPass(e.target.value)} style={{width:'100%',padding:8}}/></div>
+            <div style={{display:'flex',gap:8}}>
+              <button type="submit">Sign In</button>
+              <button type="button" onClick={handleSignUp}>Create account</button>
+            </div>
+            <div style={{marginTop:12}}>
+              <label>Role for new account:</label>
+              <select value={roleChoice} onChange={e=>setRoleChoice(e.target.value)} style={{width:'100%',padding:8}}>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Dashboard(){
+  const { user, role, signOut } = useAuth();
+  return (
+    <div style={container}>
+      <div style={card}>
+        <h2>Dashboard</h2>
+        <p>Hello, {user.email} — role: {role || 'none'}</p>
+        <div style={{display:'flex',gap:8}}>
+          <Link to="/profile">Profile</Link>
+          <Link to="/student-area">Student Area</Link>
+          <Link to="/teacher-area">Teacher Area</Link>
+        </div>
+        <div style={{marginTop:12}}>
+          <button onClick={()=>signOut()}>Sign Out</button>
+        </div>
+      </div>
+
+      <RoleRoute allowed={["student"]}>
+        <div style={card}><h3>Student content</h3><p>Assignments, grades, schedules.</p></div>
+      </RoleRoute>
+
+      <RoleRoute allowed={["teacher"]}>
+        <div style={card}><h3>Teacher content</h3><p>Class roster and gradebook links.</p></div>
+      </RoleRoute>
+
+      <RoleRoute allowed={["admin"]}>
+        <div style={card}><h3>Admin content</h3><p>District admin tools and reports.</p></div>
+      </RoleRoute>
+    </div>
+  );
+}
+
+function Profile(){
+  const { user, role } = useAuth();
+  return (
+    <div style={container}><div style={card}><h3>Profile</h3><p>Email: {user.email}</p><p>Role: {role}</p></div></div>
+  );
+}
+
+function AdminPanel(){
+  // Minimal admin area: instructs how to set roles via Firestore
+  return (
+    <div style={container}>
+      <div style={card}>
+        <h3>Admin Panel</h3>
+        <p>This demo doesn't include a full admin UI. Use the Firebase Console -> Firestore -> roles collection to set roles for users (document ID = user UID, field `role`).</p>
+        <p>Want an in-app role editor? I can add a secure role-management UI next.</p>
+      </div>
+    </div>
+  );
+}
+
+// Student/Teacher area routes (examples)
+function StudentArea(){ return (<div style={container}><div style={card}><h3>Student Area</h3><p>Student-only pages.</p></div></div>); }
+function TeacherArea(){ return (<div style={container}><div style={card}><h3>Teacher Area</h3><p>Teacher-only pages.</p></div></div>); }
+
+// ----- App root -----
+export default function App(){
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/signin" element={<SignIn/>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+          <Route path="/student-area" element={<ProtectedRoute><RoleRoute allowed={["student"]}><StudentArea/></RoleRoute></ProtectedRoute>} />
+          <Route path="/teacher-area" element={<ProtectedRoute><RoleRoute allowed={["teacher"]}><TeacherArea/></RoleRoute></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><RoleRoute allowed={["admin"]}><AdminPanel/></RoleRoute></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+/*
+Notes & Next steps
+- This demo uses Firestore roles collection. For production, either store roles in custom claims (safer) or build secure backend that verifies admin actions.
+- To use custom claims you must set them server-side using Firebase Admin SDK when creating/updating users.
+- If you prefer NextAuth (for Next.js), I can convert this to a Next.js app with NextAuth + Prisma or Firebase adapter.
+- If you prefer a custom auth server (Node/Express with JWT), I can scaffold that instead.
+*/
