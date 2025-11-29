@@ -1,46 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Products Store</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
-    header { background:#333; color:#fff; padding:20px; text-align:center; }
-    .products { display:flex; justify-content:center; padding:20px; }
-    .product-card { background:#fff; border:1px solid #ddd; border-radius:8px; width:250px; margin:15px; padding:15px; text-align:center; }
-    .product-card img { width:100%; height:auto; border-radius:8px; }
-    .product-card h3 { margin:10px 0; }
-    .product-card p { color:#555; }
-    .product-card button { background:#333; color:#fff; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Form</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#111; color:white; padding:20px; }
+  .box { max-width:500px; margin:auto; background:#1a1a1a; padding:20px; border-radius:10px; }
+  input, textarea {
+    width:100%; padding:10px; margin-top:10px; border-radius:6px;
+    border:none; background:#222; color:white;
+  }
+  button {
+    width:100%; padding:12px; margin-top:15px;
+    background:#0d6efd; color:white; border:none; border-radius:6px;
+    font-size:16px; cursor:pointer;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Welcome to My Store</h1>
-    <p>Find the best products here</p>
-  </header>
 
-  <section class="products">
-    <!-- Example product -->
-    <div class="product-card">
-      <img src="https://via.placeholder.com/250" alt="Product 1">
-      <h3>Product 1</h3>
-      <p>$19.99</p>
-      <button id="checkout-button">Buy Now</button>
-    </div>
-  </section>
+<div class="box">
+  <h2>Submit Info</h2>
 
-  <!-- Stripe Checkout -->
-  <script src="https://js.stripe.com/v3/"></script>
-  <script>
-    const stripe = Stripe("YOUR_PUBLISHABLE_KEY");
+  <form id="mainForm">
+    <input type="text" id="username" placeholder="Your Name" required>
+    <input type="text" id="data1" placeholder="Data 1" required>
+    <input type="text" id="data2" placeholder="Data 2" required>
+    <textarea id="message" rows="4" placeholder="Message (optional)"></textarea>
+    <button type="submit">Send</button>
+  </form>
 
-    document.getElementById("checkout-button").addEventListener("click", () => {
-      fetch("/create-checkout-session", { method: "POST" })
-        .then(res => res.json())
-        .then(session => stripe.redirectToCheckout({ sessionId: session.id }));
+  <p id="status"></p>
+</div>
+
+<script>
+document.getElementById('mainForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  let data = {
+    username: document.getElementById("username").value,
+    data1: document.getElementById("data1").value,
+    data2: document.getElementById("data2").value,
+    message: document.getElementById("message").value
+  };
+
+  // 🔹 CHANGE THIS TO YOUR WORKER URL
+  let endpoint = "YOUR_WORKER_URL_HERE";
+
+  try {
+    await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
-  </script>
+
+    document.getElementById("status").innerHTML = "✅ Sent to Discord!";
+    document.getElementById("mainForm").reset();
+  } catch (err) {
+    document.getElementById("status").innerHTML = "❌ Error sending.";
+  }
+});
+</script>
+
 </body>
 </html>
