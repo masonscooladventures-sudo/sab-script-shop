@@ -1,67 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Submit Form</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#111; color:white; padding:20px; }
-  .box { max-width:500px; margin:auto; background:#1a1a1a; padding:20px; border-radius:10px; }
-  input, textarea {
-    width:100%; padding:10px; margin-top:10px; border-radius:6px;
-    border:none; background:#222; color:white;
+export default {
+  async fetch(request) {
+    if (request.method === "POST") {
+      const data = await request.json();
+
+      const webhook = "YOUR_DISCORD_WEBHOOK_URL";
+      
+      await fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `New Form Submission:\nName: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
+        })
+      });
+
+      return new Response("OK", { status: 200 });
+    }
+
+    return new Response("Use POST", { status: 405 });
   }
-  button {
-    width:100%; padding:12px; margin-top:15px;
-    background:#0d6efd; color:white; border:none; border-radius:6px;
-    font-size:16px; cursor:pointer;
-  }
-</style>
-</head>
-<body>
-
-<div class="box">
-  <h2>Submit Info</h2>
-
-  <form id="mainForm">
-    <input type="text" id="username" placeholder="Your Name" required>
-    <input type="text" id="data1" placeholder="Data 1" required>
-    <input type="text" id="data2" placeholder="Data 2" required>
-    <textarea id="message" rows="4" placeholder="Message (optional)"></textarea>
-    <button type="submit">Send</button>
-  </form>
-
-  <p id="status"></p>
-</div>
-
-<script>
-document.getElementById('mainForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  let data = {
-    username: document.getElementById("username").value,
-    data1: document.getElementById("data1").value,
-    data2: document.getElementById("data2").value,
-    message: document.getElementById("message").value
-  };
-
-  // 🔹 CHANGE THIS TO YOUR WORKER URL
-  let endpoint = "YOUR_WORKER_URL_HERE";
-
-  try {
-    await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-
-    document.getElementById("status").innerHTML = "✅ Sent to Discord!";
-    document.getElementById("mainForm").reset();
-  } catch (err) {
-    document.getElementById("status").innerHTML = "❌ Error sending.";
-  }
-});
-</script>
-
-</body>
-</html>
+};
