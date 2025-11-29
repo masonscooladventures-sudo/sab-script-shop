@@ -3,19 +3,32 @@ export default {
     if (request.method === "POST") {
       const data = await request.json();
 
-      const webhook = "YOUR_DISCORD_WEBHOOK_URL";
-      
+      const webhook = "https://discord.com/api/webhooks/1444226844453765120/162TTo4J8h5ZeHuD41dJfDC26mHo7Vnfxcdw98wQTyE1HveGW65sOq3x0re0tUMMTO3Y";
+
+      const payload = {
+        content: "**New Submission**",
+        embeds: [
+          {
+            title: "Form Data",
+            color: 5814783,
+            fields: Object.keys(data).map(key => ({
+              name: key,
+              value: data[key] || "None",
+              inline: false
+            }))
+          }
+        ]
+      };
+
       await fetch(webhook, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: `New Form Submission:\nName: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
-        })
+        body: JSON.stringify(payload)
       });
 
       return new Response("OK", { status: 200 });
     }
 
-    return new Response("Use POST", { status: 405 });
+    return new Response("Send POST only.");
   }
 };
