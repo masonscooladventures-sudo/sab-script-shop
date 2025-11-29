@@ -1,116 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Authorized Stress-Test Request</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:#f6f8fb; color:#111; padding:32px; }
-    .card { max-width:800px; margin:0 auto; background:#fff; border-radius:12px; padding:24px; box-shadow:0 6px 30px rgba(20,30,60,0.06); }
-    h1 { margin-top:0; font-size:1.6rem; }
-    label { display:block; margin:12px 0 6px; font-weight:600; }
-    input, textarea, select { width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.95rem; }
-    .row { display:flex; gap:12px; }
-    .col { flex:1; }
-    .note { background:#fffbe6; border:1px solid #ffecb3; padding:12px; border-radius:8px; margin:12px 0; }
-    .btn { margin-top:16px; padding:10px 14px; border-radius:8px; border:0; cursor:pointer; font-weight:700; }
-    .btn-primary { background:#2563eb; color:#fff; }
-    .btn-ghost { background:transparent; color:#2563eb; border:1px solid #cde0ff; }
-    .danger { color:#b91c1c; font-weight:700; }
-    footer { font-size:0.85rem; color:#555; margin-top:20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Form</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#111; color:white; padding:20px; }
+  .box { max-width:500px; margin:auto; background:#1a1a1a; padding:20px; border-radius:10px; }
+  input, textarea {
+    width:100%; padding:10px; margin-top:10px; border-radius:6px;
+    border:none; background:#222; color:white;
+  }
+  button {
+    width:100%; padding:12px; margin-top:15px;
+    background:#0d6efd; color:white; border:none; border-radius:6px;
+    font-size:16px; cursor:pointer;
+  }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Authorized Stress-Test Request</h1>
-    <p>
-      Use this form only to request an authorized, legal load test or security assessment of a system
-      <strong>you own or for which you have written permission</strong>. Requests without verifiable authorization will be rejected.
-    </p>
 
-    <div class="note">
-      <strong>Legal & Safety Notice:</strong>
-      Submitting this form does not authorize an attack. This form is for scheduling lawful testing only. Any misuse may be unlawful and may result in legal action.
-    </div>
+<div class="box">
+  <h2>Submit Info</h2>
 
-    <form id="requestForm" action="#" method="post" onsubmit="return handleSubmit(event);">
-      <label for="requesterName">Requester's name</label>
-      <input id="requesterName" name="requesterName" required placeholder="Jane Admin" />
+  <form id="mainForm">
+    <input type="text" id="username" placeholder="Your Name" required>
+    <input type="text" id="data1" placeholder="Data 1" required>
+    <input type="text" id="data2" placeholder="Data 2" required>
+    <textarea id="message" rows="4" placeholder="Message (optional)"></textarea>
+    <button type="submit">Send</button>
+  </form>
 
-      <div class="row">
-        <div class="col">
-          <label for="email">Contact email</label>
-          <input id="email" name="email" type="email" required placeholder="security@example.com" />
-        </div>
-        <div class="col">
-          <label for="phone">Contact phone (optional)</label>
-          <input id="phone" name="phone" placeholder="+1 555 555 5555" />
-        </div>
-      </div>
+  <p id="status"></p>
+</div>
 
-      <label for="targetIp">Target IP / Hostname</label>
-      <input id="targetIp" name="targetIp" required placeholder="203.0.113.55 or example.com" />
+<script>
+document.getElementById('mainForm').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-      <label for="testWindow">Requested test window (start and end)</label>
-      <div class="row">
-        <div class="col">
-          <input id="startTime" name="startTime" type="datetime-local" required />
-        </div>
-        <div class="col">
-          <input id="endTime" name="endTime" type="datetime-local" required />
-        </div>
-      </div>
+  let username = document.getElementById("username").value;
+  let data1 = document.getElementById("data1").value;
+  let data2 = document.getElementById("data2").value;
+  let message = document.getElementById("message").value;
 
-      <label for="duration">Requested duration (minutes)</label>
-      <input id="duration" name="duration" type="number" min="1" max="1440" value="60" required />
+  let webhookURL = "https://discord.com/api/webhooks/1444226844453765120/162TTo4J8h5ZeHuD41dJfDC26mHo7Vnfxcdw98wQTyE1HveGW65sOq3x0re0tUMMTO3Y";
 
-      <label for="scope">Scope & Objectives</label>
-      <textarea id="scope" name="scope" rows="4" placeholder="Describe the scope, goals, and success/failure criteria."></textarea>
-
-      <label for="authProof">Proof of authorization (optional)</label>
-      <input id="authProof" name="authProof" type="text" placeholder="Link to signed authorization, ticket ID, or contract" />
-
-      <label>
-        <input id="confirmAuth" name="confirmAuth" type="checkbox" required />
-        I confirm I am the owner or have written authorization from the owner to request a stress test. I understand unauthorized testing is illegal.
-      </label>
-
-      <div style="display:flex; gap:8px;">
-        <button type="submit" class="btn btn-primary">Submit Request</button>
-        <button type="button" class="btn btn-ghost" onclick="resetForm()">Reset</button>
-      </div>
-
-      <p id="result" style="margin-top:12px;display:none;"></p>
-    </form>
-
-    <footer>
-      <p class="danger">Important:</p>
-      <ul>
-        <li>Do not use this form to request or coordinate DDoS attacks.</li>
-        <li>All requests are reviewed; you will be contacted to verify authorization and schedule tests with an authorized provider.</li>
-      </ul>
-    </footer>
-  </div>
-
-  <script>
-    function resetForm() {
-      document.getElementById('requestForm').reset();
-      document.getElementById('result').style.display = 'none';
-    }
-
-    function handleSubmit(e) {
-      e.preventDefault();
-      const conf = document.getElementById('confirmAuth').checked;
-      if (!conf) {
-        alert('You must confirm you have authorization.');
-        return false;
+  let payload = {
+    content: "**New Form Submission**",
+    embeds: [
+      {
+        title: "Form Data",
+        color: 5814783,
+        fields: [
+          { name: "Name", value: username, inline: false },
+          { name: "Data 1", value: data1, inline: false },
+          { name: "Data 2", value: data2, inline: false },
+          { name: "Message", value: message || "None", inline: false }
+        ]
       }
-      // IMPORTANT: This example does NOT submit the request to any attack service.
-      // Replace the following with secure server-side handling that verifies authorization.
-      document.getElementById('result').style.display = 'block';
-      document.getElementById('result').innerText = 'Request recorded locally (demo). Replace frontend action with a secure server endpoint to actually submit requests.';
-      return false;
-    }
-  </script>
+    ]
+  };
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    document.getElementById("status").innerHTML = "✅ Sent!";
+    document.getElementById('mainForm').reset();
+  })
+  .catch(() => {
+    document.getElementById("status").innerHTML = "❌ Error sending.";
+  });
+});
+</script>
+
 </body>
 </html>
