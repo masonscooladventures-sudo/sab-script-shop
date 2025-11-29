@@ -1,80 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Submit Form</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#111; color:white; padding:20px; }
-  .box { max-width:500px; margin:auto; background:#1a1a1a; padding:20px; border-radius:10px; }
-  input, textarea {
-    width:100%; padding:10px; margin-top:10px; border-radius:6px;
-    border:none; background:#222; color:white;
-  }
-  button {
-    width:100%; padding:12px; margin-top:15px;
-    background:#0d6efd; color:white; border:none; border-radius:6px;
-    font-size:16px; cursor:pointer;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Products Store</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
+    header { background:#333; color:#fff; padding:20px; text-align:center; }
+    .products { display:flex; justify-content:center; padding:20px; }
+    .product-card { background:#fff; border:1px solid #ddd; border-radius:8px; width:250px; margin:15px; padding:15px; text-align:center; }
+    .product-card img { width:100%; height:auto; border-radius:8px; }
+    .product-card h3 { margin:10px 0; }
+    .product-card p { color:#555; }
+    .product-card button { background:#333; color:#fff; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Welcome to My Store</h1>
+    <p>Find the best products here</p>
+  </header>
 
-<div class="box">
-  <h2>Submit Info</h2>
+  <section class="products">
+    <!-- Example product -->
+    <div class="product-card">
+      <img src="https://via.placeholder.com/250" alt="Product 1">
+      <h3>Product 1</h3>
+      <p>$19.99</p>
+      <button id="checkout-button">Buy Now</button>
+    </div>
+  </section>
 
-  <form id="mainForm">
-    <input type="text" id="username" placeholder="Your Name" required>
-    <input type="text" id="data1" placeholder="Data 1" required>
-    <input type="text" id="data2" placeholder="Data 2" required>
-    <textarea id="message" rows="4" placeholder="Message (optional)"></textarea>
-    <button type="submit">Send</button>
-  </form>
+  <!-- Stripe Checkout -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+    const stripe = Stripe("YOUR_PUBLISHABLE_KEY");
 
-  <p id="status"></p>
-</div>
-
-<script>
-document.getElementById('mainForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  let username = document.getElementById("username").value;
-  let data1 = document.getElementById("data1").value;
-  let data2 = document.getElementById("data2").value;
-  let message = document.getElementById("message").value;
-
-  let webhookURL = "https://discord.com/api/webhooks/1444226844453765120/162TTo4J8h5ZeHuD41dJfDC26mHo7Vnfxcdw98wQTyE1HveGW65sOq3x0re0tUMMTO3Y";
-
-  let payload = {
-    content: "**New Form Submission**",
-    embeds: [
-      {
-        title: "Form Data",
-        color: 5814783,
-        fields: [
-          { name: "Name", value: username, inline: false },
-          { name: "Data 1", value: data1, inline: false },
-          { name: "Data 2", value: data2, inline: false },
-          { name: "Message", value: message || "None", inline: false }
-        ]
-      }
-    ]
-  };
-
-  fetch(webhookURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    document.getElementById("status").innerHTML = "✅ Sent!";
-    document.getElementById('mainForm').reset();
-  })
-  .catch(() => {
-    document.getElementById("status").innerHTML = "❌ Error sending.";
-  });
-});
-</script>
-
+    document.getElementById("checkout-button").addEventListener("click", () => {
+      fetch("/create-checkout-session", { method: "POST" })
+        .then(res => res.json())
+        .then(session => stripe.redirectToCheckout({ sessionId: session.id }));
+    });
+  </script>
 </body>
 </html>
