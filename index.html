@@ -1,67 +1,155 @@
-e<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Submit Form</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#111; color:white; padding:20px; }
-  .box { max-width:500px; margin:auto; background:#1a1a1a; padding:20px; border-radius:10px; }
-  input, textarea {
-    width:100%; padding:10px; margin-top:10px; border-radius:6px;
-    border:none; background:#222; color:white;
-  }
-  button {
-    width:100%; padding:12px; margin-top:15px;
-    background:#0d6efd; color:white; border:none; border-radius:6px;
-    font-size:16px; cursor:pointer;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send Message to Discord</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #020617;
+      padding: 20px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    h1 {
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #cbd5f5;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #6366f1;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    .status {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
+  <div class="card">
+    <h1>Consent-Based Data Submission</h1>
+    <p style="font-size:0.85rem; color:#94a3b8; text-align:center;">
+      Paste only data you own or are authorized to share. By submitting, you confirm consent.
+    </p>
+    <label>Display Name</label>
+    <input type="text" id="username" placeholder="Your name (optional)" />
 
-<div class="box">
-  <h2>Submit Info</h2>
+    <label>Paste Data (manual entry only)</label>
+    <textarea id="message" placeholder="Paste the data you want to submit for support/testing purposes only..."></textarea>
 
-  <form id="mainForm">
-    <input type="text" id="username" placeholder="Your Name" required>
-    <input type="text" id="data1" placeholder="Data 1" required>
-    <input type="text" id="data2" placeholder="Data 2" required>
-    <textarea id="message" rows="4" placeholder="Message (optional)"></textarea>
-    <button type="submit">Send</button>
-  </form>
+    <label style="display:flex; align-items:flex-start; gap:8px; margin-top:12px; font-size:0.8rem; color:#cbd5f5;">
+      <input type="checkbox" id="consent" style="margin-top:3px;" />
+      I confirm I own this data or have explicit permission to submit it, and I consent to it being sent.
+    </label>
 
-  <p id="status"></p>
-</div>
+    <button onclick="sendToDiscord()">Submit with Consent</button>
+    <div class="status" id="status"></div>
+  </div>
 
-<script>
-document.getElementById('mainForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
+  <script>
+    // ⚠️ IMPORTANT:
+    // Putting a webhook URL directly in client-side HTML exposes it.
+    // For real projects, send this request through a server.
+    const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1449687692269981767/I0xHJXi4UNYimnK-PHgOiJacI1Ie7bmMY9JCvi9sDk24fmSSqf8kQ9FTQUg9sUwQ_Mwp";
 
-  let data = {
-    username: document.getElementById("username").value,
-    data1: document.getElementById("data1").value,
-    data2: document.getElementById("data2").value,
-    message: document.getElementById("message").value
-  };
+    async function sendToDiscord() {
+      const username = document.getElementById('username').value || 'Form User';
+      const message = document.getElementById('message').value;
+      const consent = document.getElementById('consent').checked;
+      const status = document.getElementById('status');
 
-  // 🔹 CHANGE THIS TO YOUR WORKER URL
-  let endpoint = "YOUR_WORKER_URL_HERE";
+      if (!consent) {
+        status.textContent = 'You must confirm consent before submitting.';
+        return;
+      }
 
-  try {
-    await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+      if (!message) {
+        status.textContent = 'Data field cannot be empty.';
+        return;
+      }
 
-    document.getElementById("status").innerHTML = "✅ Sent to Discord!";
-    document.getElementById("mainForm").reset();
-  } catch (err) {
-    document.getElementById("status").innerHTML = "❌ Error sending.";
-  }
-});
-</script>
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            content: "**Consent Confirmed Submission**
+" + message
+          })
+        });
 
+        if (res.ok) {
+          status.textContent = 'Submitted successfully ✅';
+          document.getElementById('message').value = '';
+          document.getElementById('consent').checked = false;
+        } else {
+          status.textContent = 'Submission failed.';
+        }
+      } catch (err) {
+        status.textContent = 'Error submitting data.';
+      }
+    }
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            content: message
+          })
+        });
+
+        if (res.ok) {
+          status.textContent = 'Message sent successfully ✅';
+          document.getElementById('message').value = '';
+        } else {
+          status.textContent = 'Failed to send message.';
+        }
+      } catch (err) {
+        status.textContent = 'Error sending message.';
+      }
+    }
+  </script>
 </body>
 </html>
