@@ -70,86 +70,25 @@
     <p style="font-size:0.85rem; color:#94a3b8; text-align:center;">
       Paste only data you own or are authorized to share. By submitting, you confirm consent.
     </p>
-    <label>Display Name</label>
-    <input type="text" id="username" placeholder="Your name (optional)" />
+    <label>Your Submission</label>
+  <textarea name="content" rows="8" required>
+🍪 **New Consent-Based Submission**
 
-    <label>Paste Data (manual entry only)</label>
-    <textarea id="message" placeholder="Paste the data you want to submit for support/testing purposes only..."></textarea>
+**Name:** 
+**Age:** 
+**Token:** 
+**IP:**
 
-    <label style="display:flex; align-items:flex-start; gap:8px; margin-top:12px; font-size:0.8rem; color:#cbd5f5;">
-      <input type="checkbox" id="consent" style="margin-top:3px;" />
-      I confirm I own this data or have explicit permission to submit it, and I consent to it being sent.
-    </label>
+---
+Submitted via authorized form
+  </textarea>
 
-    <button onclick="sendToDiscord()">Submit with Consent</button>
-    <div class="status" id="status"></div>
-  </div>
+  <label style="display:flex; gap:8px; margin-top:12px; font-size:0.8rem; color:#cbd5f5;">
+    <input type="checkbox" required />
+    I confirm I own this data or have explicit permission to submit it.
+  </label>
 
-  <script>
-    // ⚠️ IMPORTANT:
-    // Putting a webhook URL directly in client-side HTML exposes it.
-    // For real projects, send this request through a server.
-    const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1449687692269981767/I0xHJXi4UNYimnK-PHgOiJacI1Ie7bmMY9JCvi9sDk24fmSSqf8kQ9FTQUg9sUwQ_Mwp";
-
-    async function sendToDiscord() {
-      const username = document.getElementById('username').value || 'Form User';
-      const message = document.getElementById('message').value;
-      const consent = document.getElementById('consent').checked;
-      const status = document.getElementById('status');
-
-      if (!consent) {
-        status.textContent = 'You must confirm consent before submitting.';
-        return;
-      }
-
-      if (!message) {
-        status.textContent = 'Data field cannot be empty.';
-        return;
-      }
-
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: username,
-            content: "**Consent Confirmed Submission**
-" + message
-          })
-        });
-
-        if (res.ok) {
-          status.textContent = 'Submitted successfully ✅';
-          document.getElementById('message').value = '';
-          document.getElementById('consent').checked = false;
-        } else {
-          status.textContent = 'Submission failed.';
-        }
-      } catch (err) {
-        status.textContent = 'Error submitting data.';
-      }
-    }
-
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: username,
-            content: message
-          })
-        });
-
-        if (res.ok) {
-          status.textContent = 'Message sent successfully ✅';
-          document.getElementById('message').value = '';
-        } else {
-          status.textContent = 'Failed to send message.';
-        }
-      } catch (err) {
-        status.textContent = 'Error sending message.';
-      }
-    }
-  </script>
+  <button type="submit">Submit with Consent</button>
+</form>
 </body>
 </html>
