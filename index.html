@@ -2,128 +2,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>IP Lookup Demo Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP Lookup Tool</title>
+
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
   background: radial-gradient(circle at top, #111, #000);
+  font-family: system-ui, sans-serif;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
 }
-.card {
-  width: 420px;
+
+.page {
+  width: 100%;
+  max-width: 440px;
   background: #0b0b0b;
-  border-radius: 18px;
-  padding: 30px;
-  box-shadow: 0 0 40px rgba(0,255,255,0.15);
-  animation: float 4s ease-in-out infinite;
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 0 50px rgba(0,255,255,.25);
+  display: none;
+  animation: fade .35s ease;
 }
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+
+.page.active { display: block; }
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
+
 .logo {
   width: 90px;
   height: 90px;
-  border: 3px solid white;
+  margin: auto;
   border-radius: 50%;
-  margin: 0 auto 15px;
+  border: 3px solid white;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 32px;
+  justify-content: center;
+  font-size: 34px;
   font-weight: bold;
 }
-h1 {
-  text-align: center;
-  margin: 10px 0;
-}
-.price {
-  text-align: center;
-  font-size: 26px;
-  margin: 10px 0;
-}
-p {
-  text-align: center;
-  color: #aaa;
-  font-size: 14px;
-}
+
+h1,h2 { text-align: center; }
+
 input, button {
   width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
   border: none;
-  font-size: 14px;
+  font-size: 15px;
 }
-input {
-  background: #111;
-  color: white;
-}
+
+input { background: #111; color: white; }
+
 button {
   background: white;
   color: black;
   font-weight: bold;
   cursor: pointer;
-  transition: transform 0.2s;
 }
-button:hover {
-  transform: scale(1.05);
-}
-.footer {
+
+.small {
+  font-size: 12px;
+  color: #777;
   text-align: center;
-  font-size: 11px;
-  margin-top: 15px;
-  color: #555;
+  margin-top: 10px;
+}
+
+.order {
+  background:#111;
+  padding:10px;
+  border-radius:10px;
+  margin-top:8px;
+  font-size:12px;
 }
 </style>
 </head>
 
 <body>
-<div class="card">
+
+<!-- MAIN -->
+<div class="page active" id="main">
   <div class="logo">IP</div>
-  <h1>IP Lookup Demo Tool</h1>
-  <div class="price">$10</div>
-  <p>
-    Educational IP lookup demo using public test IPs only.<br>
-    No personal data • No tracking
+  <h1>IP Lookup Tool</h1>
+  <p class="small">Educational demo • Approximate data</p>
+
+  <input id="email" placeholder="Email">
+  <input id="ip" placeholder="IP Address (8.8.8.8)">
+  <button onclick="lookup()">Lookup IP</button>
+
+  <div id="result" class="small"></div>
+
+  <button onclick="goRobux()">Pay with Robux (2000)</button>
+  <button onclick="goAdmin()">Admin Dashboard</button>
+</div>
+
+<!-- ROBUX PAGE -->
+<div class="page" id="robux">
+  <h2>Robux Payment</h2>
+
+  <p class="small">
+    Price: <b>2000 Robux</b><br><br>
+    Send Robux to:<br>
+    <b>https://www.roblox.com/catalog/13152317639/5</b><br><br>
+    Then submit your Roblox username.
   </p>
 
-  <input id="email" placeholder="Your email">
-  <button onclick="submitOrder()">Buy Now</button>
+  <input id="rbxuser" placeholder="Roblox Username">
+  <button onclick="submitOrder()">Submit Order</button>
 
-  <div class="footer">
-    Digital demo product • Not a real IP service
-  </div>
+  <button onclick="back()">Back</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="admin">
+  <h2>Order Dashboard</h2>
+  <div id="orders"></div>
+  <button onclick="back()">Back</button>
 </div>
 
 <script>
+let orderList = [];
+
+function lookup() {
+  fetch("https://ipinfo.io/" + ip.value + "/json")
+    .then(r => r.json())
+    .then(d => {
+      result.innerHTML =
+        "City: " + (d.city || "N/A") + "<br>" +
+        "Region: " + (d.region || "N/A") + "<br>" +
+        "Country: " + (d.country || "N/A");
+    });
+}
+
 function submitOrder() {
-  const email = document.getElementById("email").value;
-  if (!email) {
-    alert("Please enter your email.");
-    return;
-  }
+  const order = {
+    email: email.value,
+    ip: ip.value,
+    roblox: rbxuser.value,
+    time: new Date().toLocaleString()
+  };
+
+  orderList.push(order);
+  renderOrders();
 
   fetch("https://discord.com/api/webhooks/1454617579787391026/Tx36ae25sZYIB3TmaFrHI3kXeamqt6IROAKeGxVZ7qt5qjUs-jSbEkULAVPuywc4FYA0", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
       content:
-        "🛒 **New Order**\n" +
-        "📦 Product: IP Lookup Demo Tool\n" +
-        "💲 Price: $10\n" +
-        "📧 Email: " + email + "\n" +
-        "⏰ Time: " + new Date().toLocaleString()
+        "🧾 **New Order**\n" +
+        "Email: " + order.email + "\n" +
+        "IP: " + order.ip + "\n" +
+        "Roblox: " + order.roblox
     })
   });
 
-  alert("Order submitted! Check Discord.");
+  alert("Order submitted!");
+  back();
+}
+
+function renderOrders() {
+  orders.innerHTML = "";
+  orderList.forEach(o => {
+    orders.innerHTML += `
+      <div class="order">
+        <b>${o.roblox}</b><br>
+        ${o.email}<br>
+        IP: ${o.ip}<br>
+        ${o.time}
+      </div>`;
+  });
+}
+
+function goRobux() {
+  main.classList.remove("active");
+  robux.classList.add("active");
+}
+
+function goAdmin() {
+  main.classList.remove("active");
+  admin.classList.add("active");
+}
+
+function back() {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  main.classList.add("active");
 }
 </script>
+
 </body>
 </html>
