@@ -1,30 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Shop</title>
-  <style>
-    body { font-family: Arial; background:#111; color:white; text-align:center; }
-    .product { border:1px solid #444; padding:20px; margin:20px; display:inline-block; }
-    button { padding:10px 20px; font-size:16px; cursor:pointer; }
-  </style>
+<meta charset="UTF-8">
+<title>Buy IP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at top, #111, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
+}
+
+.card {
+  background: rgba(20,20,20,0.9);
+  border-radius: 18px;
+  padding: 40px;
+  width: 360px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+.logo {
+  width: 90px;
+  height: 90px;
+  border: 3px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 auto 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.price {
+  font-size: 22px;
+  margin: 10px 0 20px;
+  color: #0f0;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #111;
+  color: white;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #00ff88, #00ccff);
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0,255,200,0.6);
+}
+
+.note {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #888;
+}
+</style>
 </head>
 <body>
 
-<h1>Welcome to My Shop</h1>
+<div class="card">
+  <div class="logo">IP</div>
+  <h1>Buy IP</h1>
+  <div class="price">$10.00</div>
 
-<div class="product">
-  <h2>Product Name</h2>
-  <p>$10.00</p>
-  <button onclick="alert('Connect PayPal or Stripe here')">Buy Now</button>
+  <input id="user" placeholder="Your username / name">
+  <input id="note" placeholder="Optional note">
+
+  <button onclick="sendOrder()">Buy (Demo)</button>
+
+  <div class="note">
+    This is a fake/demo product.<br>
+    No real payments are processed.
+  </div>
 </div>
 
-<div class="product">
-  <h2>Another Product</h2>
-  <p>$25.00</p>
-  <button onclick="alert('Connect PayPal or Stripe here')">Buy Now</button>
-</div>
+<script>
+const WEBHOOK = "https://discord.com/api/webhooks/1454617579787391026/Tx36ae25sZYIB3TmaFrHI3kXeamqt6IROAKeGxVZ7qt5qjUs-jSbEkULAVPuywc4FYA0";
 
-<p>Contact: youremail@email.com</p>
+function sendOrder() {
+  const user = document.getElementById("user").value || "Unknown";
+  const note = document.getElementById("note").value || "None";
+
+  fetch(WEBHOOK, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      embeds: [{
+        title: "🛒 New Buy IP Order (Demo)",
+        color: 65280,
+        fields: [
+          { name: "Product", value: "Buy IP (Fake)", inline: true },
+          { name: "Price", value: "$10", inline: true },
+          { name: "User", value: user },
+          { name: "Note", value: note }
+        ],
+        footer: { text: "Website Demo Order" },
+        timestamp: new Date()
+      }]
+    })
+  });
+
+  alert("Order sent to Discord!");
+}
+</script>
 
 </body>
 </html>
