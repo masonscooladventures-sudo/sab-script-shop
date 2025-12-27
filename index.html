@@ -1,51 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Prediction Changer</title>
+  <title>VR Prediction Slider</title>
   <style>
     body {
-      font-family: Arial;
+      background: radial-gradient(circle at top, #111, #000);
+      color: white;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding-top: 50px;
+      padding-top: 60px;
     }
-    select, button {
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 40px;
+    }
+
+    .slider-box {
+      width: 80%;
+      max-width: 600px;
+      margin: auto;
+      background: #111;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 25px #00ffff55;
+    }
+
+    input[type=range] {
+      width: 100%;
+      appearance: none;
+      height: 14px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #ff004c, #00ffff);
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 15px #00ffff;
+      cursor: pointer;
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
       font-size: 18px;
-      padding: 10px;
-      margin: 10px;
+      opacity: 0.85;
+    }
+
+    .value {
+      font-size: 26px;
+      margin-top: 25px;
+      color: #00ffff;
     }
   </style>
 </head>
 <body>
 
-<h2>Your Prediction</h2>
+<h1>VR Prediction Slider</h1>
 
-<select id="prediction">
-  <option value="Option A">Option A</option>
-  <option value="Option B">Option B</option>
-  <option value="Option C">Option C</option>
-</select>
-
-<br>
-
-<button onclick="savePrediction()">Save / Change</button>
-
-<p id="status"></p>
+<div class="slider-box">
+  <input type="range" min="0" max="100" id="slider">
+  <div class="labels">
+    <span>❌ NO</span>
+    <span>⚖️ MAYBE</span>
+    <span>✅ YES</span>
+  </div>
+  <div class="value" id="valueText">Prediction: 50%</div>
+</div>
 
 <script>
-  // Load saved prediction
-  const saved = localStorage.getItem("prediction");
-  if (saved) {
-    document.getElementById("prediction").value = saved;
-    document.getElementById("status").innerText =
-      "Current prediction: " + saved;
+  const slider = document.getElementById("slider");
+  const valueText = document.getElementById("valueText");
+
+  // Load saved value
+  const saved = localStorage.getItem("vrPrediction");
+  if (saved !== null) {
+    slider.value = saved;
+    valueText.innerText = "Prediction: " + saved + "%";
+  } else {
+    slider.value = 50;
   }
 
-  function savePrediction() {
-    const value = document.getElementById("prediction").value;
-    localStorage.setItem("prediction", value);
-    document.getElementById("status").innerText =
-      "Current prediction: " + value;
-  }
+  slider.oninput = () => {
+    valueText.innerText = "Prediction: " + slider.value + "%";
+    localStorage.setItem("vrPrediction", slider.value);
+  };
 </script>
 
 </body>
