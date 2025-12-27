@@ -1,96 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Website Pinger (1000)</title>
-<style>
-body {
-    background: #0b0b0b;
-    color: #00ffcc;
-    font-family: monospace;
-    text-align: center;
-    padding-top: 25px;
-}
-input, button {
-    padding: 10px;
-    font-size: 16px;
-    margin: 5px;
-}
-#log {
-    margin-top: 15px;
-    white-space: pre-wrap;
-    text-align: left;
-    width: 90%;
-    margin: auto;
-}
-label {
-    display: block;
-    margin-top: 10px;
-}
-</style>
+  <title>Prediction Changer</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding-top: 50px;
+    }
+    select, button {
+      font-size: 18px;
+      padding: 10px;
+      margin: 10px;
+    }
+  </style>
 </head>
 <body>
 
-<h2>🌐 Website Pinger</h2>
-<p>Total Pings: <b>1,000</b></p>
+<h2>Your Prediction</h2>
 
-<input id="url" placeholder="https://example.com" size="40">
+<select id="prediction">
+  <option value="Option A">Option A</option>
+  <option value="Option B">Option B</option>
+  <option value="Option C">Option C</option>
+</select>
 
-<label>
-⚡ Parallel Requests: <span id="pval">10</span>
-<input type="range" id="parallel" min="1" max="1000" value="10"
-       oninput="pval.textContent=this.value">
-</label>
+<br>
 
-<button onclick="startPing()">Start</button>
+<button onclick="savePrediction()">Save / Change</button>
 
-<div id="log"></div>
+<p id="status"></p>
 
 <script>
-async function startPing() {
-    const url = document.getElementById("url").value;
-    const parallel = parseInt(document.getElementById("parallel").value);
-    const log = document.getElementById("log");
+  // Load saved prediction
+  const saved = localStorage.getItem("prediction");
+  if (saved) {
+    document.getElementById("prediction").value = saved;
+    document.getElementById("status").innerText =
+      "Current prediction: " + saved;
+  }
 
-    if (!url) {
-        alert("Enter a website URL");
-        return;
-    }
-
-    const total = 1000;
-    let sent = 0;
-
-    log.textContent =
-        `Target: ${url}\n` +
-        `Total pings: ${total}\n` +
-        `Parallel setting: ${parallel}\n\n`;
-
-    while (sent < total) {
-        const batch = [];
-
-        for (let i = 0; i < parallel && sent < total; i++) {
-            sent++;
-            const num = sent;
-
-            batch.push((async () => {
-                const start = performance.now();
-                try {
-                    await fetch(url, { mode: "no-cors" });
-                    const end = performance.now();
-                    log.textContent +=
-                        `[${num}/1000] ✔ ${Math.round(end - start)} ms\n`;
-                } catch {
-                    log.textContent +=
-                        `[${num}/1000] ✖ ERROR\n`;
-                }
-            })());
-        }
-
-        await Promise.all(batch);
-    }
-
-    log.textContent += `\n✅ Done (1,000 requests completed)`;
-}
+  function savePrediction() {
+    const value = document.getElementById("prediction").value;
+    localStorage.setItem("prediction", value);
+    document.getElementById("status").innerText =
+      "Current prediction: " + value;
+  }
 </script>
 
 </body>
