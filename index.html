@@ -1,97 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>VR Prediction Slider</title>
+  <title>My Shop</title>
   <style>
-    body {
-      background: radial-gradient(circle at top, #111, #000);
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 60px;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin-bottom: 40px;
-    }
-
-    .slider-box {
-      width: 80%;
-      max-width: 600px;
-      margin: auto;
-      background: #111;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 0 25px #00ffff55;
-    }
-
-    input[type=range] {
-      width: 100%;
-      appearance: none;
-      height: 14px;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #ff004c, #00ffff);
-      outline: none;
-    }
-
-    input[type=range]::-webkit-slider-thumb {
-      appearance: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 15px #00ffff;
-      cursor: pointer;
-    }
-
-    .labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-      font-size: 18px;
-      opacity: 0.85;
-    }
-
-    .value {
-      font-size: 26px;
-      margin-top: 25px;
-      color: #00ffff;
-    }
+    body { font-family: Arial; background:#111; color:white; text-align:center; }
+    .product { border:1px solid #444; padding:20px; margin:20px; display:inline-block; }
+    button { padding:10px 20px; font-size:16px; cursor:pointer; }
   </style>
 </head>
 <body>
 
-<h1>VR Prediction Slider</h1>
+<h1>Welcome to My Shop</h1>
 
-<div class="slider-box">
-  <input type="range" min="0" max="100" id="slider">
-  <div class="labels">
-    <span>❌ NO</span>
-    <span>⚖️ MAYBE</span>
-    <span>✅ YES</span>
-  </div>
-  <div class="value" id="valueText">Prediction: 50%</div>
+<div class="product">
+  <h2>Product Name</h2>
+  <p>$10.00</p>
+  <button onclick="alert('Connect PayPal or Stripe here')">Buy Now</button>
 </div>
 
-<script>
-  const slider = document.getElementById("slider");
-  const valueText = document.getElementById("valueText");
+<div class="product">
+  <h2>Another Product</h2>
+  <p>$25.00</p>
+  <button onclick="alert('Connect PayPal or Stripe here')">Buy Now</button>
+</div>
 
-  // Load saved value
-  const saved = localStorage.getItem("vrPrediction");
-  if (saved !== null) {
-    slider.value = saved;
-    valueText.innerText = "Prediction: " + saved + "%";
-  } else {
-    slider.value = 50;
-  }
-
-  slider.oninput = () => {
-    valueText.innerText = "Prediction: " + slider.value + "%";
-    localStorage.setItem("vrPrediction", slider.value);
-  };
-</script>
+<p>Contact: youremail@email.com</p>
 
 </body>
 </html>
