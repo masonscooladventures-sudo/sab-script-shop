@@ -2,148 +2,128 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Buy IP</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP Lookup Demo Tool</title>
 <style>
-* {
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
-
 body {
   margin: 0;
-  height: 100vh;
+  font-family: Arial, sans-serif;
   background: radial-gradient(circle at top, #111, #000);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: white;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
-
 .card {
-  background: rgba(20,20,20,0.9);
+  width: 420px;
+  background: #0b0b0b;
   border-radius: 18px;
-  padding: 40px;
-  width: 360px;
-  text-align: center;
-  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  padding: 30px;
+  box-shadow: 0 0 40px rgba(0,255,255,0.15);
   animation: float 4s ease-in-out infinite;
 }
-
 @keyframes float {
-  0% { transform: translateY(0); }
+  0%,100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
 }
-
 .logo {
   width: 90px;
   height: 90px;
   border: 3px solid white;
   border-radius: 50%;
+  margin: 0 auto 15px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   font-size: 32px;
   font-weight: bold;
-  margin: 0 auto 20px;
 }
-
 h1 {
-  margin: 0;
-  font-size: 26px;
+  text-align: center;
+  margin: 10px 0;
 }
-
 .price {
-  font-size: 22px;
-  margin: 10px 0 20px;
-  color: #0f0;
+  text-align: center;
+  font-size: 26px;
+  margin: 10px 0;
 }
-
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #111;
-  color: white;
-  margin-bottom: 15px;
+p {
+  text-align: center;
+  color: #aaa;
   font-size: 14px;
 }
-
-button {
+input, button {
   width: 100%;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
   border: none;
-  background: linear-gradient(90deg, #00ff88, #00ccff);
+  font-size: 14px;
+}
+input {
+  background: #111;
+  color: white;
+}
+button {
+  background: white;
   color: black;
   font-weight: bold;
-  font-size: 16px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s;
 }
-
 button:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0,255,200,0.6);
 }
-
-.note {
+.footer {
+  text-align: center;
+  font-size: 11px;
   margin-top: 15px;
-  font-size: 12px;
-  color: #888;
+  color: #555;
 }
 </style>
 </head>
-<body>
 
+<body>
 <div class="card">
   <div class="logo">IP</div>
-  <h1>Buy IP</h1>
-  <div class="price">$10.00</div>
+  <h1>IP Lookup Demo Tool</h1>
+  <div class="price">$10</div>
+  <p>
+    Educational IP lookup demo using public test IPs only.<br>
+    No personal data • No tracking
+  </p>
 
-  <input id="user" placeholder="Your username / name">
-  <input id="note" placeholder="Optional note">
+  <input id="email" placeholder="Your email">
+  <button onclick="submitOrder()">Buy Now</button>
 
-  <button onclick="sendOrder()">Buy (Demo)</button>
-
-  <div class="note">
-    This is a fake/demo product.<br>
-    No real payments are processed.
+  <div class="footer">
+    Digital demo product • Not a real IP service
   </div>
 </div>
 
 <script>
-const WEBHOOK = "https://discord.com/api/webhooks/1454617579787391026/Tx36ae25sZYIB3TmaFrHI3kXeamqt6IROAKeGxVZ7qt5qjUs-jSbEkULAVPuywc4FYA0";
+function submitOrder() {
+  const email = document.getElementById("email").value;
+  if (!email) {
+    alert("Please enter your email.");
+    return;
+  }
 
-function sendOrder() {
-  const user = document.getElementById("user").value || "Unknown";
-  const note = document.getElementById("note").value || "None";
-
-  fetch(WEBHOOK, {
+  fetch("https://discord.com/api/webhooks/1454617579787391026/Tx36ae25sZYIB3TmaFrHI3kXeamqt6IROAKeGxVZ7qt5qjUs-jSbEkULAVPuywc4FYA0", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
-      embeds: [{
-        title: "🛒 New Buy IP Order (Demo)",
-        color: 65280,
-        fields: [
-          { name: "Product", value: "Buy IP (Fake)", inline: true },
-          { name: "Price", value: "$10", inline: true },
-          { name: "User", value: user },
-          { name: "Note", value: note }
-        ],
-        footer: { text: "Website Demo Order" },
-        timestamp: new Date()
-      }]
+      content:
+        "🛒 **New Order**\n" +
+        "📦 Product: IP Lookup Demo Tool\n" +
+        "💲 Price: $10\n" +
+        "📧 Email: " + email + "\n" +
+        "⏰ Time: " + new Date().toLocaleString()
     })
   });
 
-  alert("Order sent to Discord!");
+  alert("Order submitted! Check Discord.");
 }
 </script>
-
 </body>
 </html>
