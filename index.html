@@ -6,6 +6,12 @@
 <title>Buy IP</title>
 
 <style>
+/* ---------- CUSTOM CURSOR ---------- */
+body {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><circle cx='8' cy='8' r='6' fill='white'/></svg>") 8 8, auto;
+}
+
+/* ---------- BASE ---------- */
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -24,15 +30,15 @@ body {
   background: #0b0b0b;
   border-radius: 22px;
   padding: 26px;
-  box-shadow: 0 0 60px rgba(0,255,255,.35);
+  box-shadow: 0 0 70px rgba(0,255,255,.35);
   display: none;
-  animation: slide .45s ease;
+  animation: fade .4s ease;
 }
 
 .page.active { display: block; }
 
-@keyframes slide {
-  from { opacity: 0; transform: translateY(15px) scale(.98); }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(12px) scale(.97); }
   to { opacity: 1; transform: none; }
 }
 
@@ -49,7 +55,7 @@ body {
   font-weight: bold;
 }
 
-h1,h2 { text-align: center; }
+h1, h2 { text-align: center; }
 
 input, button {
   width: 100%;
@@ -74,8 +80,8 @@ button {
 }
 
 button:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 20px rgba(255,255,255,.3);
+  transform: scale(1.03);
+  box-shadow: 0 0 25px rgba(255,255,255,.4);
 }
 
 .small {
@@ -86,67 +92,65 @@ button:hover {
 }
 
 .order {
-  background:#111;
-  padding:10px;
-  border-radius:10px;
-  margin-top:8px;
-  font-size:12px;
+  background: #111;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- MAIN -->
-<div class="page active" id="main">
+<!-- HOME -->
+<div class="page active" id="home">
   <div class="logo">IP</div>
   <h1>Buy IP</h1>
   <p class="small">Digital demo product • No real tracking</p>
 
   <input id="email" placeholder="Email">
-  <button onclick="goBuy()">BUY (2000 Robux)</button>
-  <button onclick="goLogin()">Admin Dashboard</button>
+  <button onclick="show('pay')">PAY (2000 Robux)</button>
+  <button onclick="show('login')">Admin</button>
 </div>
 
-<!-- BUY PAGE -->
-<div class="page" id="buy">
-  <h2>Robux Payment</h2>
+<!-- PAY PAGE -->
+<div class="page" id="pay">
+  <h2>Payment Instructions</h2>
 
   <p class="small">
     Price: <b>2000 Robux</b><br><br>
     Send Robux to:<br>
-    <b>https://www.roblox.com/catalog/13152317639/5</b>
+    <b>https://www.roblox.com/catalog/13152317639/5</b><br><br>
+    Then enter your Roblox username below and press PAY.
   </p>
 
-  <input id="rbxuser" placeholder="Roblox Username">
-  <button onclick="complete()">Buy</button>
-  <button onclick="back()">Back</button>
+  <input id="rbx" placeholder="Roblox Username">
+  <button onclick="pay()">PAY</button>
+  <button onclick="show('home')">Back</button>
 </div>
 
 <!-- SUCCESS -->
 <div class="page" id="success">
   <h2>✅ Success</h2>
-  <p class="small">
-    Your order was sent.<br>
-    Payment will be verified.
-  </p>
-  <button onclick="back()">Done</button>
+  <p class="small">Your order was sent to Discord.</p>
+  <button onclick="show('home')">Done</button>
 </div>
 
-<!-- LOGIN -->
+<!-- ADMIN LOGIN -->
 <div class="page" id="login">
   <h2>Admin Login</h2>
   <input id="pass" type="password" placeholder="Password">
   <button onclick="login()">Login</button>
-  <button onclick="back()">Back</button>
+  <button onclick="show('home')">Back</button>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ADMIN DASHBOARD -->
 <div class="page" id="admin">
-  <h2>Order Dashboard</h2>
+  <h2>Orders</h2>
   <div id="orders"></div>
   <button onclick="clearOrders()">Clear Orders</button>
-  <button onclick="back()">Back</button>
+  <button onclick="show('home')">Back</button>
 </div>
 
 <script>
@@ -157,10 +161,15 @@ function save() {
   localStorage.setItem("orders", JSON.stringify(orders));
 }
 
-function complete() {
+function pay() {
+  if (!email.value || !rbx.value) {
+    alert("Fill everything out");
+    return;
+  }
+
   const order = {
     email: email.value,
-    roblox: rbxuser.value,
+    roblox: rbx.value,
     time: new Date().toLocaleString()
   };
 
@@ -172,7 +181,7 @@ function complete() {
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
       content:
-        "🛒 **New Order**\n" +
+        "🛒 **NEW ORDER**\n" +
         "Email: " + order.email + "\n" +
         "Roblox: " + order.roblox + "\n" +
         "Time: " + order.time
@@ -182,7 +191,7 @@ function complete() {
   show("success");
 }
 
-function render() {
+function renderOrders() {
   ordersDiv.innerHTML = "";
   orders.forEach(o => {
     ordersDiv.innerHTML += `
@@ -194,20 +203,20 @@ function render() {
   });
 }
 
-function clearOrders() {
-  if (confirm("Clear all orders?")) {
-    orders = [];
-    save();
-    render();
-  }
-}
-
 function login() {
   if (pass.value === ADMIN_PASS) {
-    render();
+    renderOrders();
     show("admin");
   } else {
     alert("Wrong password");
+  }
+}
+
+function clearOrders() {
+  if (confirm("Delete all orders?")) {
+    orders = [];
+    save();
+    renderOrders();
   }
 }
 
@@ -215,10 +224,6 @@ function show(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
-
-function goBuy(){ show("buy"); }
-function goLogin(){ show("login"); }
-function back(){ show("main"); }
 </script>
 
 </body>
