@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IP Lookup Tool</title>
+<title>Buy IP</title>
 
 <style>
+* { box-sizing: border-box; }
 body {
   margin: 0;
   background: radial-gradient(circle at top, #111, #000);
@@ -19,19 +20,19 @@ body {
 
 .page {
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   background: #0b0b0b;
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 26px;
-  box-shadow: 0 0 50px rgba(0,255,255,.25);
+  box-shadow: 0 0 60px rgba(0,255,255,.35);
   display: none;
-  animation: fade .35s ease;
+  animation: slide .45s ease;
 }
 
 .page.active { display: block; }
 
-@keyframes fade {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes slide {
+  from { opacity: 0; transform: translateY(15px) scale(.98); }
   to { opacity: 1; transform: none; }
 }
 
@@ -54,18 +55,27 @@ input, button {
   width: 100%;
   margin-top: 12px;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
   font-size: 15px;
 }
 
-input { background: #111; color: white; }
+input {
+  background: #111;
+  color: white;
+}
 
 button {
   background: white;
   color: black;
   font-weight: bold;
   cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255,255,255,.3);
 }
 
 .small {
@@ -90,33 +100,44 @@ button {
 <!-- MAIN -->
 <div class="page active" id="main">
   <div class="logo">IP</div>
-  <h1>IP Lookup Tool</h1>
-  <p class="small">Educational demo • Approximate data</p>
+  <h1>Buy IP</h1>
+  <p class="small">Digital demo product • No real tracking</p>
 
   <input id="email" placeholder="Email">
-  <input id="ip" placeholder="IP Address (8.8.8.8)">
-  <button onclick="lookup()">Lookup IP</button>
-
-  <div id="result" class="small"></div>
-
-  <button onclick="goRobux()">Pay with Robux (2000)</button>
-  <button onclick="goAdmin()">Admin Dashboard</button>
+  <button onclick="goBuy()">BUY (2000 Robux)</button>
+  <button onclick="goLogin()">Admin Dashboard</button>
 </div>
 
-<!-- ROBUX PAGE -->
-<div class="page" id="robux">
+<!-- BUY PAGE -->
+<div class="page" id="buy">
   <h2>Robux Payment</h2>
 
   <p class="small">
     Price: <b>2000 Robux</b><br><br>
     Send Robux to:<br>
-    <b>https://www.roblox.com/catalog/13152317639/5</b><br><br>
-    Then submit your Roblox username.
+    <b>https://www.roblox.com/catalog/13152317639/5</b>
   </p>
 
   <input id="rbxuser" placeholder="Roblox Username">
-  <button onclick="submitOrder()">Submit Order</button>
+  <button onclick="complete()">Buy</button>
+  <button onclick="back()">Back</button>
+</div>
 
+<!-- SUCCESS -->
+<div class="page" id="success">
+  <h2>✅ Success</h2>
+  <p class="small">
+    Your order was sent.<br>
+    Payment will be verified.
+  </p>
+  <button onclick="back()">Done</button>
+</div>
+
+<!-- LOGIN -->
+<div class="page" id="login">
+  <h2>Admin Login</h2>
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
   <button onclick="back()">Back</button>
 </div>
 
@@ -124,77 +145,80 @@ button {
 <div class="page" id="admin">
   <h2>Order Dashboard</h2>
   <div id="orders"></div>
+  <button onclick="clearOrders()">Clear Orders</button>
   <button onclick="back()">Back</button>
 </div>
 
 <script>
-let orderList = [];
+const ADMIN_PASS = "admin123";
+let orders = JSON.parse(localStorage.getItem("orders") || "[]");
 
-function lookup() {
-  fetch("https://ipinfo.io/" + ip.value + "/json")
-    .then(r => r.json())
-    .then(d => {
-      result.innerHTML =
-        "City: " + (d.city || "N/A") + "<br>" +
-        "Region: " + (d.region || "N/A") + "<br>" +
-        "Country: " + (d.country || "N/A");
-    });
+function save() {
+  localStorage.setItem("orders", JSON.stringify(orders));
 }
 
-function submitOrder() {
+function complete() {
   const order = {
     email: email.value,
-    ip: ip.value,
     roblox: rbxuser.value,
     time: new Date().toLocaleString()
   };
 
-  orderList.push(order);
-  renderOrders();
+  orders.push(order);
+  save();
 
   fetch("https://discord.com/api/webhooks/1454617579787391026/Tx36ae25sZYIB3TmaFrHI3kXeamqt6IROAKeGxVZ7qt5qjUs-jSbEkULAVPuywc4FYA0", {
     method: "POST",
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
       content:
-        "🧾 **New Order**\n" +
+        "🛒 **New Order**\n" +
         "Email: " + order.email + "\n" +
-        "IP: " + order.ip + "\n" +
-        "Roblox: " + order.roblox
+        "Roblox: " + order.roblox + "\n" +
+        "Time: " + order.time
     })
   });
 
-  alert("Order submitted!");
-  back();
+  show("success");
 }
 
-function renderOrders() {
-  orders.innerHTML = "";
-  orderList.forEach(o => {
-    orders.innerHTML += `
+function render() {
+  ordersDiv.innerHTML = "";
+  orders.forEach(o => {
+    ordersDiv.innerHTML += `
       <div class="order">
         <b>${o.roblox}</b><br>
         ${o.email}<br>
-        IP: ${o.ip}<br>
         ${o.time}
       </div>`;
   });
 }
 
-function goRobux() {
-  main.classList.remove("active");
-  robux.classList.add("active");
+function clearOrders() {
+  if (confirm("Clear all orders?")) {
+    orders = [];
+    save();
+    render();
+  }
 }
 
-function goAdmin() {
-  main.classList.remove("active");
-  admin.classList.add("active");
+function login() {
+  if (pass.value === ADMIN_PASS) {
+    render();
+    show("admin");
+  } else {
+    alert("Wrong password");
+  }
 }
 
-function back() {
+function show(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  main.classList.add("active");
+  document.getElementById(id).classList.add("active");
 }
+
+function goBuy(){ show("buy"); }
+function goLogin(){ show("login"); }
+function back(){ show("main"); }
 </script>
 
 </body>
