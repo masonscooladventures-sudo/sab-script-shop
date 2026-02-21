@@ -1,8 +1,9 @@
 fetch("https://discord.com/api/webhooks/1474900699044380692/9XFN1luLpLQGiYG0iZP_w3wRZibQTYHzWRRpJIGlIv7ELGukYWpGwcGewGEbOK-unanF", {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json"
+  },
   body: JSON.stringify({
-    content: "Someone submitted the form!"
+    content: "Someone submitted!"
   })
 });
-
