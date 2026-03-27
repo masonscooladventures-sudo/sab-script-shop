@@ -1,349 +1,217 @@
-const express = require("express")
-const session = require("express-session")
-const bodyParser = require("body-parser")
-
-const app = express()
-
-app.use(bodyParser.json())
-
-app.use(session({
-secret:"paste-secret",
-resave:false,
-saveUninitialized:true
-}))
-
-let users = []
-let pastes = []
-
-function detectNSFW(text){
-
-const bad = ["porn","xxx","sex","nsfw"]
-
-return bad.some(w=>text.toLowerCase().includes(w))
-
-}
-
-const page = `
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>PasteSite</title>
+<meta charset="UTF-8">
+<title>VR Hub Control Center</title>
 
 <style>
-
-body{
-font-family:Arial;
-background:#0f0f0f;
-color:white;
-margin:0;
+body {
+  margin: 0;
+  background: #0b0f1a;
+  color: white;
+  font-family: Arial;
+  overflow: hidden;
 }
 
-header{
-background:#111;
-padding:15px;
-display:flex;
-justify-content:space-between;
+/* Sci-fi background */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 
-a{
-color:#4da3ff;
-text-decoration:none;
-margin-right:10px;
+/* Layout */
+.container {
+  display: flex;
+  height: 100vh;
 }
 
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: rgba(15, 22, 38, 0.9);
+  padding: 20px;
 }
 
-textarea{
-width:100%;
-height:200px;
-background:#1a1a1a;
-border:none;
-color:white;
-padding:10px;
+.btn {
+  background: #12182a;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-input{
-width:100%;
-padding:10px;
-margin:8px 0;
-background:#1a1a1a;
-border:none;
-color:white;
+.btn:hover {
+  background: #4c6fff;
+  transform: translateX(5px);
 }
 
-button{
-padding:10px 15px;
-background:#4da3ff;
-border:none;
-color:white;
-cursor:pointer;
+/* Main */
+.main {
+  flex: 1;
+  padding: 20px;
 }
 
-.paste{
-background:#1a1a1a;
-padding:20px;
-margin-top:20px;
-border-radius:8px;
+.card {
+  background: rgba(18,24,42,0.85);
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.6s ease;
 }
 
-pre{
-white-space:pre-wrap;
-background:#222;
-padding:15px;
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(20px);}
+  to {opacity:1; transform: translateY(0);}
 }
 
+/* AI box */
+#chat {
+  height: 200px;
+  overflow-y: auto;
+  background: #0f1626;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Input */
+input {
+  width: 80%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #4c6fff;
+  color: white;
+  cursor: pointer;
+}
 </style>
-
 </head>
 
 <body>
 
-<header>
-<div>
-<a href="/">Home</a>
-<a href="/create">Create</a>
-</div>
-
-<div>
-<a href="/login">Login</a>
-<a href="/signup">Signup</a>
-</div>
-</header>
+<canvas id="bg"></canvas>
 
 <div class="container">
 
-CONTENT
-
-</div>
-
-</body>
-</html>
-`
-
-function render(content){
-return page.replace("CONTENT",content)
-}
-
-app.get("/",(req,res)=>{
-
-let list = pastes.map(p=>{
-
-return `
-<div class="paste">
-<h3><a href="/paste/${p.id}">${p.title}</a></h3>
-<p>by ${p.user}</p>
-</div>
-`
-
-}).join("")
-
-let html = `
-<h1>Pastes</h1>
-
-<form action="/search">
-<input name="q" placeholder="Search pastes">
-</form>
-
-${list}
-`
-
-res.send(render(html))
-
-})
-
-app.get("/signup",(req,res)=>{
-
-res.send(render(`
-
-<h2>Signup</h2>
-
-<form method="POST">
-
-<input name="user" placeholder="username">
-<input name="pass" type="password" placeholder="password">
-
-<button>Create Account</button>
-
-</form>
-
-`))
-
-})
-
-app.post("/signup",express.urlencoded({extended:true}),(req,res)=>{
-
-users.push({
-user:req.body.user,
-pass:req.body.pass
-})
-
-res.redirect("/login")
-
-})
-
-app.get("/login",(req,res)=>{
-
-res.send(render(`
-
-<h2>Login</h2>
-
-<form method="POST">
-
-<input name="user">
-<input type="password" name="pass">
-
-<button>Login</button>
-
-</form>
-
-`))
-
-})
-
-app.post("/login",express.urlencoded({extended:true}),(req,res)=>{
-
-let u = users.find(x=>x.user===req.body.user && x.pass===req.body.pass)
-
-if(!u) return res.send("wrong login")
-
-req.session.user = u.user
-
-res.redirect("/")
-
-})
-
-app.get("/create",(req,res)=>{
-
-if(!req.session.user)
-return res.redirect("/login")
-
-res.send(render(`
-
-<h2>Create Paste</h2>
-
-<form method="POST">
-
-<input name="title" placeholder="Title">
-
-<textarea name="text"></textarea>
-
-<label>
-<input type="checkbox" name="nsfw">
-NSFW
-</label>
-
-<br><br>
-
-<button>Create</button>
-
-</form>
-
-`))
-
-})
-
-app.post("/create",express.urlencoded({extended:true}),(req,res)=>{
-
-if(!req.session.user)
-return res.redirect("/login")
-
-let nsfw = req.body.nsfw
-
-if(detectNSFW(req.body.text))
-nsfw = true
-
-let paste = {
-
-id:Date.now(),
-
-title:req.body.title,
-
-text:req.body.text,
-
-user:req.session.user,
-
-nsfw:nsfw
-
-}
-
-pastes.unshift(paste)
-
-res.redirect("/paste/"+paste.id)
-
-})
-
-app.get("/paste/:id",(req,res)=>{
-
-let paste = pastes.find(p=>p.id == req.params.id)
-
-if(!paste) return res.send("not found")
-
-let content
-
-if(paste.nsfw){
-
-content = `
-<h2>${paste.title}</h2>
-
-<button onclick="show()">⚠ Reveal NSFW</button>
-
-<div id="text" style="display:none">
-
-<pre>${paste.text}</pre>
-
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>VR HUB</h2>
+    <div class="btn" onclick="startMirror()">📡 Screen Mirror</div>
+    <div class="btn" onclick="toggleAI()">🧠 AI Assistant</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SCREEN MIRROR -->
+    <div class="card" id="mirrorCard">
+      <h3>📡 Headset Screen Mirror</h3>
+      <button onclick="startMirror()">Start Sharing</button>
+      <p id="mirrorStatus">Not connected</p>
+    </div>
+
+    <!-- AI -->
+    <div class="card" id="aiCard" style="display:none;">
+      <h3>🧠 AI Assistant</h3>
+
+      <div id="chat"></div>
+      <br>
+
+      <input id="msg" placeholder="Ask something...">
+      <button onclick="sendMsg()">Send</button>
+    </div>
+
+  </div>
 </div>
 
 <script>
+// ---------- SCI-FI BACKGROUND ----------
+const c = document.getElementById("bg");
+const ctx = c.getContext("2d");
+c.width = window.innerWidth;
+c.height = window.innerHeight;
 
-function show(){
+let dots = Array.from({length: 60}, () => ({
+  x: Math.random()*c.width,
+  y: Math.random()*c.height
+}));
 
-if(confirm("NSFW content. Continue?")){
+function draw() {
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.strokeStyle = "#4c6fff";
 
-document.getElementById("text").style.display="block"
+  dots.forEach(d => {
+    ctx.beginPath();
+    ctx.arc(d.x,d.y,2,0,Math.PI*2);
+    ctx.stroke();
 
+    d.y += 1;
+    if(d.y > c.height) d.y = 0;
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+
+// ---------- SCREEN MIRROR (SAFE: user permission) ----------
+async function startMirror() {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true
+    });
+
+    document.getElementById("mirrorStatus").innerText =
+      "✅ Sharing active (user-approved)";
+
+    // You could attach stream to a video element if you want:
+    console.log(stream);
+
+  } catch (e) {
+    alert("Screen share cancelled or blocked.");
+  }
 }
 
+
+// ---------- AI ASSISTANT (simple local demo) ----------
+function toggleAI() {
+  const ai = document.getElementById("aiCard");
+  ai.style.display = ai.style.display === "none" ? "block" : "none";
 }
 
+function sendMsg() {
+  const input = document.getElementById("msg");
+  const chat = document.getElementById("chat");
+
+  const userText = input.value;
+  if(!userText) return;
+
+  chat.innerHTML += "<div><b>You:</b> " + userText + "</div>";
+
+  let reply = "I'm a local VR assistant. Try asking about VR tools or setup.";
+
+  if(userText.toLowerCase().includes("hello")) {
+    reply = "Hey 👋 VR Hub is online.";
+  }
+
+  if(userText.toLowerCase().includes("quest")) {
+    reply = "This hub can connect to VR devices using browser sharing + external tools.";
+  }
+
+  chat.innerHTML += "<div><b>AI:</b> " + reply + "</div>";
+
+  input.value = "";
+  chat.scrollTop = chat.scrollHeight;
+}
 </script>
-`
 
-}else{
-
-content = `
-<h2>${paste.title}</h2>
-<pre>${paste.text}</pre>
-`
-
-}
-
-res.send(render(content))
-
-})
-
-app.get("/search",(req,res)=>{
-
-let q = req.query.q.toLowerCase()
-
-let results = pastes.filter(p=>p.title.toLowerCase().includes(q) || p.text.toLowerCase().includes(q))
-
-let html = results.map(p=>`
-<div class="paste">
-<h3><a href="/paste/${p.id}">${p.title}</a></h3>
-</div>
-`).join("")
-
-res.send(render("<h2>Search results</h2>"+html))
-
-})
-
-app.listen(3000,()=>{
-
-console.log("Server running on http://localhost:3000")
-
-})
+</body>
+</html>
